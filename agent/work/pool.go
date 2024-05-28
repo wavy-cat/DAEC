@@ -5,8 +5,6 @@ import (
 	"sync"
 )
 
-const BackendUrl = "http://localhost" // Адрес оркестратора.
-
 // Pool Пул для выполнения
 type Pool struct {
 	tasks  chan Expression // Канал, из которого будут браться задачи для обработки

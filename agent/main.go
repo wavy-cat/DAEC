@@ -1,16 +1,15 @@
 package main
 
 import (
+	"agent/config"
 	"agent/work"
 	"fmt"
 	"go.uber.org/zap"
-	"os"
-	"strconv"
 )
 
 func main() {
 	// Создание и запуск логгера
-	logger, err := zap.NewDevelopment() // Заменить в конце на NewProduction
+	logger, err := zap.NewProduction()
 
 	if err != nil {
 		fmt.Println("error initializing logger:", err)
@@ -27,12 +26,10 @@ func main() {
 	logger.Info("Agent is starting")
 
 	// Запуск worker pool (горутин, которые будут выполнять арифметические вычисления)
-	power := os.Getenv("COMPUTING_POWER")
-	numPower, err := strconv.Atoi(power)
+	numPower, err := config.GetComputingPower()
 
 	if err != nil {
 		logger.Fatal("Failed to get COMPUTING_POWER value: " + err.Error())
-		return
 	}
 
 	pool := work.NewPool(numPower, logger)

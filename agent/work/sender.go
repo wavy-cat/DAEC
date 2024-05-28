@@ -1,6 +1,7 @@
 package work
 
 import (
+	"agent/config"
 	"bytes"
 	"encoding/json"
 	"errors"
@@ -21,7 +22,7 @@ func SendResult(result ResultData, attempts uint8) error {
 		return err
 	}
 
-	resp, err := http.Post(BackendUrl+"/internal/task", "application/json", bytes.NewBuffer(data))
+	resp, err := http.Post(config.BackendUrl+"/internal/task", "application/json", bytes.NewBuffer(data))
 	if err != nil {
 		return err
 	}

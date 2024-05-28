@@ -1,6 +1,7 @@
 package main
 
 import (
+	"agent/config"
 	"agent/work"
 	"encoding/json"
 	"fmt"
@@ -28,9 +29,9 @@ type TaskWrapper struct {
 func fetcher(pool *work.Pool, logger *zap.Logger) {
 	for {
 		// Отправляем запрос оркестратору
-		response, err := http.Get(work.BackendUrl + "/internal/taskObj")
+		response, err := http.Get(config.BackendUrl + "/internal/taskObj")
 		if err != nil {
-			logger.Fatal("Failed to send request to orchestrator. Try again in 2 seconds...")
+			logger.Error("Failed to send request to orchestrator. Try again in 2 seconds...")
 			time.Sleep(2 * time.Second)
 			continue
 		}
@@ -56,7 +57,7 @@ func fetcher(pool *work.Pool, logger *zap.Logger) {
 		var taskObj TaskWrapper
 		err = json.NewDecoder(response.Body).Decode(&taskObj)
 		if err != nil {
-			logger.Fatal("Error unmarshalling JSON in request. Task skipped")
+			logger.Error("Error unmarshalling JSON in request. Task skipped")
 			continue
 		}
 

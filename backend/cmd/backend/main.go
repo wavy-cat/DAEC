@@ -1,44 +1,49 @@
 package main
 
 import (
-	"backend/http/handler"
+	"backend/http/handler/calculate"
 	"backend/http/middleware"
+	"backend/internal/storage"
 	"fmt"
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
 	"net/http"
-	"sync"
 )
-
-// MiddlewareOptions существует, для того чтобы складывать туда все аргументы для мидлварей.
-// Данные поля будут доступны в контексте обработчика.
-type MiddlewareOptions struct {
-	Logger   *zap.Logger
-	Database *map[string]interface{}
-	Mutex    *sync.RWMutex
-}
 
 // setupMiddlewares оборачивает http.HandlerFunc в мидлвари.
 // Используется в setupRouter
-func setupMiddlewares(handlerFunc http.HandlerFunc, options MiddlewareOptions) http.Handler {
+func setupMiddlewares(handlerFunc http.HandlerFunc, logger *zap.Logger, storage *storage.Storage) http.Handler {
 	// LoggingMiddleware -> DatabaseMiddleware -> HandlerFunc
 	return &middleware.LoggingMiddleware{
-		Logger: options.Logger,
+		Logger: logger,
 		Next: &middleware.DatabaseMiddleware{
-			Database: options.Database,
-			Lock:     options.Mutex,
-			Next:     handlerFunc,
+			Storage: storage,
+			Next:    handlerFunc,
 		},
 	}
 }
 
 // setupRouter создаёт новый экземпляр mux.Router и настраивает конфигурацию маршрутизации.
-func setupRouter(options MiddlewareOptions) *mux.Router {
+func setupRouter(logger *zap.Logger, storage *storage.Storage) *mux.Router {
 	router := mux.NewRouter()
 
-	// Здесь настраивается маршрутизация.
-	// Чтобы не оборачивать функции в мидлвари вручную используется setupMiddlewares.
-	router.Handle("/api/v1/calculate", setupMiddlewares(handler.CalculateHandler, options)).Methods("POST")
+	// Здесь настраивается маршрутизация aka указание эндпойнтов сервера
+	routes := map[string]struct {
+		handler http.HandlerFunc
+		methods []string
+	}{
+		// Указываются тут, если что.
+		// Ключ — путь, значение — структура из объекта http.HandlerFunc и разрешённых методов.
+		"/api/v1/calculate": {
+			calculate.Handler,
+			[]string{"POST"},
+		},
+	}
+
+	for path, routeConfig := range routes {
+		// Чтобы не оборачивать функции в мидлвари вручную используется setupMiddlewares
+		router.Handle(path, setupMiddlewares(routeConfig.handler, logger, storage)).Methods(routeConfig.methods...)
+	}
 
 	return router
 }
@@ -61,17 +66,11 @@ func main() {
 
 	logger.Info("Orchestrator is starting")
 
-	// Создание базы данных и других опций для MiddlewareOptions
-	database := make(map[string]interface{})
-	options := MiddlewareOptions{
-		Logger:   logger,
-		Database: &database,
-		Mutex:    &sync.RWMutex{},
-	}
-	// TODO: Добавить Tasks{}
+	// Создание базы данных
+	db := storage.NewStorage()
 
-	if err := http.ListenAndServe(":8080", setupRouter(options)); err != nil {
+	// Запуск сервера
+	if err := http.ListenAndServe(":8080", setupRouter(logger, db)); err != nil {
 		logger.Fatal(err.Error())
-		return
 	}
 }

@@ -9,7 +9,7 @@ import (
 type Task struct {
 	Id         int    // Идентификатор выражения
 	Expression string // Строка с выражением
-	IsDone     bool   // Статус выполнена ли задача
+	Status     string // Статус задачи
 	Result     int    // Результат
 }
 
@@ -20,7 +20,7 @@ type Tasks struct {
 	mutex        sync.RWMutex // Mutex для синхронизации
 }
 
-// Функция для проверки есть ли задача с переданным ID в pendingTasks.
+// Функция для проверки есть ли задача с переданным Id в pendingTasks.
 // Если задача найдена возвращается ещё её и индекс.
 func (t *Tasks) containsPending(taskId int) (int, bool) {
 	for i, tk := range t.pendingTasks {
@@ -31,7 +31,7 @@ func (t *Tasks) containsPending(taskId int) (int, bool) {
 	return 0, false
 }
 
-// Функция для проверки есть ли задача с переданным ID в doneTasks.
+// Функция для проверки есть ли задача с переданным Id в doneTasks.
 // Если задача найдена возвращается ещё её и индекс.
 func (t *Tasks) containsDone(taskId int) (int, bool) {
 	for i, tk := range t.doneTasks {
@@ -57,7 +57,8 @@ func (t *Tasks) AddTask(task Task) error {
 
 	t.pendingTasks = append(t.pendingTasks, task)
 
-	// TODO: Добавить тут логику распараллеливания и отправки агенту
+	// TODO: Логика обратной польской записи
+	// TODO: Отправка агенту (в другой горутине)
 
 	return nil
 }

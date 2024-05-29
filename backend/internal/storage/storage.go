@@ -16,19 +16,22 @@ func NewStorage() *Storage {
 	}
 }
 
+// Set Добавление значения по ключу. Перезаписывает существующее значение при том же ключе.
 func (s *Storage) Set(key string, value any) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 	s.database[key] = value
 }
 
+// Get Получение значения по ключу.
 func (s *Storage) Get(key string) any {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
 	return s.database[key]
 }
 
-func (s *Storage) Delete(key string) {
+// Del Удаление значения по ключу.
+func (s *Storage) Del(key string) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 	delete(s.database, key)

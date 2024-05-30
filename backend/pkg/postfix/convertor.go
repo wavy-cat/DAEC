@@ -21,20 +21,6 @@ var operatorAssociativity = map[rune]string{
 	'^': "right",
 }
 
-//func higherPrecedence(op1, op2 rune) bool {
-//	if op2 == '(' || op1 == '(' {
-//		return false
-//	}
-//	if operatorPrecedence[op1] > operatorPrecedence[op2] {
-//		return false
-//	}
-//	if operatorPrecedence[op1] == operatorPrecedence[op2] &&
-//		(operatorAssociativity[op1] == "left" || operatorAssociativity[op2] == "left") {
-//		return true // sure?
-//	}
-//	return true
-//}
-
 // Convertor Переводит выражение в инфиксной нотации в слайс токенов постфиксной записи.
 // Возвращаемый слайс состоит из float64 и rune.
 func Convertor(expression string) ([]any, error) {

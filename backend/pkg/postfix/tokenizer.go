@@ -27,9 +27,13 @@ func SplitExpressionToTokens(expression string) ([]any, error) {
 
 			if char == '-' {
 				if len(expression)-1 == i {
+					// Проверка то что минус не стоит в конце выражения
 					return nil, errors.New("operator detected at end of expression")
 				}
-				if !unicode.IsDigit(rune(expression[i+1])) {
+
+				// Если минус находится в начале выражения или перед ним не стоит цифра, но anyway идёт после,
+				// то это унарный минус. Если нет, то обычный минус.
+				if !((i == 0 || !unicode.IsDigit(rune(expression[i-1]))) && unicode.IsDigit(rune(expression[i+1]))) {
 					tokens = append(tokens, char)
 					continue
 				}

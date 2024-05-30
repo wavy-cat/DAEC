@@ -8,10 +8,23 @@ import (
 
 // LazyFloat - "ленивый" или отложенный float64.
 // Значение может быть пустое (ещё вычисляться).
-// О готовности можно узнать из IsDone.
 type LazyFloat struct {
-	IsDone bool    // Статус значения (посчиталось ещё или нет)
-	Value  float64 // Значение
+	isDone bool    // Статус значения (посчиталось ещё или нет)
+	value  float64 // Значение
+}
+
+// GetValue отдаёт значение, когда оно готово.
+func (f *LazyFloat) GetValue() float64 {
+	for !f.isDone {
+		time.Sleep(10 * time.Millisecond)
+	}
+	return f.value
+}
+
+// SetValue устанавливает значение и его готовность.
+func (f *LazyFloat) SetValue(num float64) {
+	f.value = num
+	f.isDone = true
 }
 
 // MathSolver Интерфейс, который реализует базовые арифметические операции.
@@ -43,10 +56,10 @@ func Calculate(postfixNotation []any, solver MathSolver) *CalcResult {
 		for _, token := range postfixNotation {
 			switch token.(type) {
 			case float64:
-				stack.Push(&LazyFloat{Value: token.(float64), IsDone: true})
+				stack.Push(&LazyFloat{value: token.(float64), isDone: true})
 			case rune:
-				num1, ok1 := stack.Pop()
-				num2, ok2 := stack.Pop()
+				num2, ok1 := stack.Pop()
+				num1, ok2 := stack.Pop()
 				if !ok1 || !ok2 {
 					result.Error = errors.New("error getting value from stack. " +
 						"perhaps there is an error in the expression")
@@ -77,17 +90,13 @@ func Calculate(postfixNotation []any, solver MathSolver) *CalcResult {
 		}
 
 		num, ok := stack.Pop()
-		if ok {
+		if !ok {
 			result.Error = errors.New("error getting value from stack. internal server error")
 			result.IsDone = true
 			return
 		}
 
-		for !num.IsDone {
-			time.Sleep(100 * time.Millisecond)
-		}
-
-		result.Result = num.Value
+		result.Result = num.GetValue()
 		result.IsDone = true
 	}(&result)
 

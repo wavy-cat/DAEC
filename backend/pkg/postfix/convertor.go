@@ -21,19 +21,19 @@ var operatorAssociativity = map[rune]string{
 	'^': "right",
 }
 
-func higherPrecedence(op1, op2 rune) bool {
-	if op2 == '(' {
-		return false
-	}
-	if operatorPrecedence[op1] > operatorPrecedence[op2] {
-		return true
-	}
-	if operatorPrecedence[op1] == operatorPrecedence[op2] &&
-		operatorAssociativity[op1] == "left" {
-		return true
-	}
-	return false
-}
+//func higherPrecedence(op1, op2 rune) bool {
+//	if op2 == '(' || op1 == '(' {
+//		return false
+//	}
+//	if operatorPrecedence[op1] > operatorPrecedence[op2] {
+//		return false
+//	}
+//	if operatorPrecedence[op1] == operatorPrecedence[op2] &&
+//		(operatorAssociativity[op1] == "left" || operatorAssociativity[op2] == "left") {
+//		return true // sure?
+//	}
+//	return true
+//}
 
 // Convertor Переводит выражение в инфиксной нотации в слайс токенов постфиксной записи.
 // Возвращаемый слайс состоит из float64 и rune.
@@ -47,23 +47,36 @@ func Convertor(expression string) ([]any, error) {
 	}
 
 	for _, token := range tokens {
-		switch token.(type) {
+		switch token := token.(type) {
 		case float64:
 			outputQueue = append(outputQueue, token)
-		default:
+		case rune:
 			switch token {
 			case '+', '-', '/', '*', '^':
-				if op2, ok := stack.Peek(); ok && higherPrecedence(token.(rune), op2) {
-					stack.Pop()
-					outputQueue = append(outputQueue, op2)
+				for {
+					op2, ok := stack.Peek()
+					if !ok || op2 == '(' {
+						break
+					}
+					if (operatorAssociativity[token] == "left" && operatorPrecedence[token] <= operatorPrecedence[op2]) ||
+						(operatorAssociativity[token] == "right" && operatorPrecedence[token] < operatorPrecedence[op2]) {
+						stack.Pop()
+						outputQueue = append(outputQueue, op2)
+					} else {
+						break
+					}
 				}
-				stack.Push(token.(rune))
+				stack.Push(token)
 			case '(':
-				stack.Push(token.(rune))
+				stack.Push(token)
 			case ')':
-				for op, ok := stack.Peek(); op != '('; op, ok = stack.Peek() {
+				for {
+					op, ok := stack.Peek()
 					if !ok {
 						return nil, errors.New("the stack ran out too early. error in expression")
+					}
+					if op == '(' {
+						break
 					}
 					stack.Pop()
 					outputQueue = append(outputQueue, op)
@@ -73,13 +86,16 @@ func Convertor(expression string) ([]any, error) {
 		}
 	}
 
-	if val, ok := stack.Peek(); ok {
-		if val == '(' {
+	// После завершения цикла проверяем оставшиеся операторы в стеке
+	for {
+		token, ok := stack.Pop()
+		if !ok {
+			break
+		}
+		if token == '(' {
 			return nil, errors.New("missing parenthesis in expression")
 		}
-		for token, ok := stack.Pop(); ok; token, ok = stack.Pop() {
-			outputQueue = append(outputQueue, token)
-		}
+		outputQueue = append(outputQueue, token)
 	}
 
 	return outputQueue, nil

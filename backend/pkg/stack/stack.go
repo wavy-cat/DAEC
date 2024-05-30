@@ -5,7 +5,7 @@ import "sync"
 // Stack Простая реализация стека
 type Stack[T any] struct {
 	lock  sync.RWMutex
-	items []interface{}
+	items []T
 }
 
 // NewStack Создаёт новый экземпляр структуры Stack

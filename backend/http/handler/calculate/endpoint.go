@@ -31,7 +31,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Проверка, что выражение не содержит запрещённые символы
-	var allowedChars = []rune{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '-', '(', ')', '/', '*', '^', ' '}
+	var allowedChars = []rune{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '-', '(', ')', '/', '*', '^', '.', ' '}
 	if contains, char := utils.CheckCharsInString(data.Expression, allowedChars); !contains {
 		http.Error(w, "forbidden symbol found: "+string(char), http.StatusUnprocessableEntity)
 		return

@@ -145,6 +145,6 @@ func main() {
 		{"10.5^2-2*5", 100.25},
 	}
 	for _, exp := range exps {
-		calc(exp.expression, exp.expect, time.Second)
+		calc(exp.expression, exp.expect, 200*time.Millisecond)
 	}
 }

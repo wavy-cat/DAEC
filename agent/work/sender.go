@@ -5,13 +5,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"github.com/google/uuid"
 	"net/http"
 	"time"
 )
 
 type ResultData struct {
-	Id     string  `json:"id"`     // Id выражения. Предполагается что это UUID, поэтому тип string
-	Result float64 `json:"result"` // Результат выражения
+	Id     uuid.UUID `json:"id"`     // Id выражения
+	Result float64   `json:"result"` // Результат выражения
 }
 
 // SendResult посылает результат оркестратору.

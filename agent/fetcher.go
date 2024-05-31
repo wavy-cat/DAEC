@@ -5,6 +5,7 @@ import (
 	"agent/work"
 	"encoding/json"
 	"fmt"
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"net/http"
 	"time"
@@ -12,11 +13,11 @@ import (
 
 // Task описывает задачу, которую необходимо выполнить
 type Task struct {
-	Id            string  `json:"id"`             // Уникальный идентификатор задачи (UUID)
-	Arg1          float64 `json:"arg1"`           // Первый аргумент операции
-	Arg2          float64 `json:"arg2"`           // Второй аргумент операции
-	Operation     string  `json:"operation"`      // Операция, которую следует выполнить
-	OperationTime int     `json:"operation_time"` // Время, требуемое для выполнения операции в миллисекундах
+	Id            uuid.UUID `json:"id"`             // Уникальный идентификатор задачи (UUID)
+	Arg1          float64   `json:"arg1"`           // Первый аргумент операции
+	Arg2          float64   `json:"arg2"`           // Второй аргумент операции
+	Operation     string    `json:"operation"`      // Операция, которую следует выполнить
+	OperationTime int       `json:"operation_time"` // Время, требуемое для выполнения операции в миллисекундах
 }
 
 // TaskWrapper представляет собой обёртку вокруг задач, она используется для корректного преобразования вложенных JSON.

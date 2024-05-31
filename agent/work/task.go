@@ -1,13 +1,14 @@
 package work
 
 import (
+	"github.com/google/uuid"
 	"math"
 	"time"
 )
 
 // Expression структура выражения
 type Expression struct {
-	Id            string // Предполагается что это UUID
+	Id            uuid.UUID
 	Num1          float64
 	Num2          float64
 	Operator      rune

@@ -2,7 +2,7 @@
 
 В этой папке есть 2 файла формата `.http`.
 Используйте их в какой-нибудь IDE от JetBrains, например, GoLand.
-Или в VSCode с плагином [Rest Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client).
+Или в VSCode с плагином [REST Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client).
 Или где-нибудь ещё.
 
 Также, примеры из задания полностью подходят к этому решению.
@@ -10,7 +10,7 @@
 
 > [!NOTE]
 > Это не API Reference, это всего лишь примеры.
-> Чтобы посмотреть эндпойнты детально, перейдите к файлу README.md.
+> Чтобы посмотреть, что принимают и возвращают эндпойнты детально, перейдите к главному файлу [README.md](../README.md).
 
 > [!WARNING]
 > Все примеры составлены с учётом того что сервер работает на порту 80.

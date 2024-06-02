@@ -1,0 +1,25 @@
+version: '3.9'
+services:
+  backend:
+    build:
+      context: ./backend
+    env_file:
+      - .env
+
+  agent:
+    build:
+      context: ./agent
+    env_file:
+      - .env
+    depends_on:
+      - backend
+
+  caddy:
+    image: dockerhub.timeweb.cloud/library/caddy
+    volumes:
+      - ./frontend:/var/www/frontend
+      - ./Caddyfile:/etc/caddy/Caddyfile
+    ports:
+      - "80:80"
+    depends_on:
+      - backend

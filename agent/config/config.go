@@ -5,7 +5,15 @@ import (
 	"strconv"
 )
 
-const BackendUrl = "http://localhost" // URL оркестратора
+var BackendUrl = "http://localhost" // URL оркестратора
+
+func init() {
+	url := os.Getenv("BACKEND_URL")
+
+	if url != "" {
+		BackendUrl = url
+	}
+}
 
 // GetComputingPower Получение COMPUTING_POWER из переменных среды
 func GetComputingPower() (int, error) {

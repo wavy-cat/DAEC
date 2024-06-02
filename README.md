@@ -14,7 +14,7 @@ Aka Распределенный вычислитель арифметическ
 
 * Backend aka оркестратор
 * Agent (demon) aka вычислитель
-* Frontend (не имеет отдельного сервера) aka веб-интерфейс
+* Frontend (не имеет отдельного сервера) aka веб-интерфейс (не реализовано :) )
 
 В качестве основного веб-сервера предлагается использовать [Caddy](https://caddyserver.com/).
 Он уже присутствует в Docker Compose.
@@ -45,6 +45,8 @@ Aka Распределенный вычислитель арифметическ
 Можно также использовать Docker Desktop.
 В случае чего находите инструкцию по установке на вашей системе в гугле.
 
+Перед запуском настройте переменные среды в файле .env.
+
 ```bash
 git clone https://github.com/wavy-cat/DAEC.git
 cd DAEC
@@ -58,11 +60,14 @@ cd DAEC # Если ещё не в папке с проектом
 docker compose down
 ```
 
-После запуска будет доступен веб-интерфейс по адресу https://localhost/, а API на https://localhost/api/v1/
+После запуска будет доступен веб-интерфейс по адресу http://localhost/, а API на http://localhost/api/v1/
 
 Внутренняя часть API (/internal/task) недоступна вне сети контейнеров.
 
-Поддерживаются протоколы http и https, даже в localhost (подробнее об этом на [сайте Caddy](https://caddyserver.com/)).
+> [!NOTE]
+> Если вы видите что сервер разорвал соединение, то попробуйте отправить запрос через другой браузер (например, Firefox)
+> или http клиент такие как Postman или HTTPie.
+> Скорее всего, ваш браузер пытается подключиться по https, а не http.
 
 ### Запуск напрямую
 
@@ -85,24 +90,76 @@ docker compose down
 Либо можете просто скачать [архив с репозиторием](https://github.com/wavy-cat/DAEC/archive/refs/heads/main.zip) и
 распаковать его.
 
+А также само самой должен быть установлен [Go](https://go.dev), версии не ниже 1.22.
+
 ```bash
 git clone https://github.com/wavy-cat/DAEC.git
 cd DAEC
 ```
 
-2. Установите зависимости и запустите сервер
+2. Установите зависимости сервера
 
 ```bash
 cd backend
 go mod download
-go run backend
 ```
 
-3. *В другом окне* установите зависимости агента и запустите его
+3. Укажите задержку выполнения в переменных среды
+
+Везде для примера задержка 5000мс, вы можете её изменить.
+
+В Linux / macOS:
+```bash
+export TIME_ADDITION_MS=5000
+export TIME_SUBTRACTION_MS=5000
+export TIME_MULTIPLICATIONS_MS=5000
+export TIME_DIVISIONS_MS=5000
+export TIME_EXPONENTIATION_MS=5000
+```
+
+В Windows:
+```powershell
+SET TIME_ADDITION_MS=5000
+SET TIME_SUBTRACTION_MS=5000
+SET TIME_MULTIPLICATIONS_MS=5000
+SET TIME_DIVISIONS_MS=5000
+SET TIME_EXPONENTIATION_MS=5000
+```
+
+4. Запустите сервер
 
 ```bash
-cd agent
+go run backend/cmd/backend
+```
+
+3. *В другом окне* установите зависимости агента
+
+```bash
+cd DAEC/agent
 go mod download
+```
+
+5. Укажите computing power:
+
+В командах указывается 10, вы можете заменить на сколько угодно, но больше 0.
+
+В Linux / macOS:
+
+```bash
+export COMPUTING_POWER=10
+```
+
+В Windows:
+
+```powershell
+SET COMPUTING_POWER=10
+```
+
+6. Запустите агента
+
+*Можно даже парочку разом.*
+
+```bash
 go run agent
 ```
 

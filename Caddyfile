@@ -1,0 +1,5 @@
+http://localhost {
+	redir / https://github.com/wavy-cat/DAEC
+	reverse_proxy /api/v1/* backend:80
+	file_server
+}

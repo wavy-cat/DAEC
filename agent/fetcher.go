@@ -32,7 +32,7 @@ func fetcher(pool *work.Pool, logger *zap.Logger) {
 		// Отправляем запрос оркестратору
 		response, err := http.Get(config.BackendUrl + "/internal/task")
 		if err != nil {
-			logger.Error("Failed to send request to orchestrator. Try again in 2 seconds...")
+			logger.Error(fmt.Sprintf("Failed to send request to orchestrator (%s). Try again in 2 seconds...", config.BackendUrl))
 			time.Sleep(2 * time.Second)
 			continue
 		}

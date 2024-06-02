@@ -1,0 +1,9 @@
+### Получение результата конкретного выражения
+@id = e1e48f90-a2db-4878-95cb-4e70f344052f
+GET http://localhost:8080/api/v1/expressions/{{ id }}
+Content-Type: application/json
+
+### Получение результата всех выражений
+GET http://localhost:8080/api/v1/expressions
+Content-Type: application/json
+

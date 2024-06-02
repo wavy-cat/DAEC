@@ -5,7 +5,7 @@ import (
 	"strconv"
 )
 
-const BackendUrl = "http://localhost:8080" // URL оркестратора
+const BackendUrl = "http://localhost" // URL оркестратора
 
 // GetComputingPower Получение COMPUTING_POWER из переменных среды
 func GetComputingPower() (int, error) {

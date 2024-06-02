@@ -1,5 +1,5 @@
 ### Добавляет ариф. выражение на выполнение в оркестатор
-POST http://localhost:8080/api/v1/calculate
+POST http://localhost/api/v1/calculate
 Content-Type: application/json
 
 {
@@ -7,7 +7,7 @@ Content-Type: application/json
 }
 
 ### Большое выражение (ответ: 24)
-POST http://localhost:8080/api/v1/calculate
+POST http://localhost/api/v1/calculate
 Content-Type: application/json
 
 {
@@ -15,7 +15,7 @@ Content-Type: application/json
 }
 
 ### Неправильное выражение (ошибка возвращается при получении результата)
-POST http://localhost:8080/api/v1/calculate
+POST http://localhost/api/v1/calculate
 Content-Type: application/json
 
 {
@@ -23,7 +23,7 @@ Content-Type: application/json
 }
 
 ### Ещё одно неправильное выражение (ошибка возвращается во время этого запроса)
-POST http://localhost:8080/api/v1/calculate
+POST http://localhost/api/v1/calculate
 Content-Type: application/json
 
 {

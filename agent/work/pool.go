@@ -27,7 +27,13 @@ func NewPool(maxGoroutines int, logger *zap.Logger) *Pool {
 				w.Execute()
 
 				// отправляем результат
-				result := ResultData{Id: w.Id, Result: w.Result}
+				var result ResultData
+				if w.Successful {
+					result = ResultData{Id: w.Id, Result: &w.Result}
+				} else {
+					result = ResultData{Id: w.Id, Result: nil}
+				}
+
 				err := SendResult(result, 3)
 				if err != nil {
 					logger.Error("Error sending result: " + err.Error())

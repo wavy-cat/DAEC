@@ -41,7 +41,7 @@ docker compose up -d
 
 Поддерживаются протоколы http и https, даже в localhost (подробнее об этом на [сайте Caddy](https://caddyserver.com/))
 
-*TODO: а возможно только https :)*
+*TODO: а возможно только что-то одно. :)*
 
 ### Запуск без Docker Compose
 
@@ -91,3 +91,7 @@ setup.bat
 * Унарный минус
 * Операторы +, -, *, /, ^
 * Скобки
+
+### Структура проекта
+
+### API Reference

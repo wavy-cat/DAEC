@@ -12,7 +12,7 @@ import (
 
 type ResultData struct {
 	Id     uuid.UUID `json:"id"`     // Id выражения
-	Result float64   `json:"result"` // Результат выражения
+	Result *float64  `json:"result"` // Результат выражения
 }
 
 // SendResult посылает результат оркестратору.

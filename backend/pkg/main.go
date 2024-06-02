@@ -2,6 +2,7 @@ package main
 
 import (
 	"backend/pkg/postfix"
+	"backend/pkg/queue"
 	"fmt"
 	"math"
 	"time"
@@ -71,18 +72,18 @@ func (s *solver) Exponentiation(num1, num2 *postfix.LazyFloat) *postfix.LazyFloa
 	return &float
 }
 
-func showExp(exp []any) {
-	for _, token := range exp {
-		switch token.(type) {
-		case float64:
-			fmt.Print(token)
-		case rune:
-			fmt.Print(string(token.(rune)))
-		}
-		fmt.Print(" ")
-	}
-	fmt.Println()
-}
+//func showExp(exp []any) {
+//	for _, token := range exp {
+//		switch token.(type) {
+//		case float64:
+//			fmt.Print(token)
+//		case rune:
+//			fmt.Print(string(token.(rune)))
+//		}
+//		fmt.Print(" ")
+//	}
+//	fmt.Println()
+//}
 
 func calc(exp string, wait float64, sleep time.Duration) {
 	start := time.Now()
@@ -114,7 +115,16 @@ func calc(exp string, wait float64, sleep time.Duration) {
 	fmt.Println(result.Result, wait, text, duration)
 }
 
+func testQueue() {
+	q := queue.NewQueue[string]()
+	q.Enqueue("hello")
+	fmt.Println(q.Dequeue())
+	fmt.Println(q.Dequeue())
+}
+
 func main() {
+	fmt.Println(postfix.SplitExpressionToTokens("2+-2"))
+	testQueue()
 	// TODO: Перенести эти тестики в examples
 	// ((2 + 2 * 2) ^ 2 + 4) / 2 ^ 2 - (-100 + 50 * 2) - 2
 	exps := []struct {
@@ -143,8 +153,11 @@ func main() {
 		{"(34-6-6*2)/2", 8},
 		{"(25*82)^8-(99/4)", 3.1191114176253905e+26},
 		{"10.5^2-2*5", 100.25},
+		{"2/0", 0},
+		{"0^(-2)", 0},
+		{"2/0*4", 0},
 	}
 	for _, exp := range exps {
-		calc(exp.expression, exp.expect, 200*time.Millisecond)
+		calc(exp.expression, exp.expect, 0*time.Millisecond)
 	}
 }

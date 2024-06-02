@@ -10,6 +10,7 @@ import (
 // Значение может быть пустое (ещё вычисляться).
 type LazyFloat struct {
 	isDone bool    // Статус значения (посчиталось ещё или нет)
+	IsFail bool    // True, если значение не удалось вычислить
 	value  float64 // Значение
 }
 
@@ -24,6 +25,11 @@ func (f *LazyFloat) GetValue() float64 {
 // SetValue устанавливает значение и его готовность.
 func (f *LazyFloat) SetValue(num float64) {
 	f.value = num
+	f.isDone = true
+}
+
+func (f *LazyFloat) SetFail() {
+	f.IsFail = true
 	f.isDone = true
 }
 
@@ -50,7 +56,7 @@ type CalcResult struct {
 func Calculate(postfixNotation []any, solver MathSolver) *CalcResult {
 	var result CalcResult
 
-	go func(result *CalcResult) {
+	go func(result *CalcResult, solver MathSolver) {
 		stack := stk.NewStack[*LazyFloat]()
 
 		for _, token := range postfixNotation {
@@ -97,8 +103,11 @@ func Calculate(postfixNotation []any, solver MathSolver) *CalcResult {
 		}
 
 		result.Result = num.GetValue()
+		if num.IsFail {
+			result.Error = errors.New("an error occurred during calculation")
+		}
 		result.IsDone = true
-	}(&result)
+	}(&result, solver)
 
 	return &result
 }

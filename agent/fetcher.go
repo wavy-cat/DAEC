@@ -30,7 +30,7 @@ type TaskWrapper struct {
 func fetcher(pool *work.Pool, logger *zap.Logger) {
 	for {
 		// Отправляем запрос оркестратору
-		response, err := http.Get(config.BackendUrl + "/internal/taskObj")
+		response, err := http.Get(config.BackendUrl + "/internal/task")
 		if err != nil {
 			logger.Error("Failed to send request to orchestrator. Try again in 2 seconds...")
 			time.Sleep(2 * time.Second)
@@ -42,6 +42,7 @@ func fetcher(pool *work.Pool, logger *zap.Logger) {
 		case 404:
 			// Если новой задачи нет, то ненадолго "засыпаем"
 			time.Sleep(300 * time.Millisecond)
+			continue
 		case 500:
 			logger.Error("An internal orchestrator error occurred. Try again in 2 seconds...")
 			time.Sleep(2 * time.Second)

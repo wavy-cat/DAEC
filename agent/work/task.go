@@ -14,6 +14,7 @@ type Expression struct {
 	Operator      rune
 	OperationTime time.Duration // Задержка в миллисекундах
 	Result        float64
+	Successful    bool
 }
 
 func (t *Expression) Execute() {
@@ -30,4 +31,5 @@ func (t *Expression) Execute() {
 	case '^':
 		t.Result = math.Pow(t.Num1, t.Num2)
 	}
+	t.Successful = !(math.IsInf(t.Result, 1) || math.IsInf(t.Result, -1))
 }

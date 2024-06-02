@@ -17,3 +17,6 @@ func CheckCharsInString(str string, chars []rune) (bool, rune) {
 	}
 	return true, 0
 }
+
+// Почему программисты не любят находиться на природе?
+// Там слишком много bugов.

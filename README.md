@@ -38,10 +38,6 @@ Aka Распределенный вычислитель арифметическ
 
 ### Запуск в Docker Compose
 
-> [!NOTE]
-> Для этого способа настраивать прокси **не** нужно, если вы из России!
-> В Dockerfile уже указаны образы с [прокси Timeweb Cloud](https://dockerhub.timeweb.cloud/).
-
 Для этого способа у вас должен быть установлен Git, Docker и Docker Compose.
 Инструкции по установке Docker доступны на [официальном сайте](https://www.docker.com/get-started/) (заходить с VPN из
 России).
@@ -86,7 +82,7 @@ docker compose down
 Либо можете просто скачать [архив с репозиторием](https://github.com/wavy-cat/DAEC/archive/refs/heads/main.zip) и
 распаковать его.
 
-А также само самой должен быть установлен [Go](https://go.dev), версии не ниже 1.22.
+А также само собой должен быть установлен [Go](https://go.dev), версии не ниже 1.22.
 
 ```bash
 git clone https://github.com/wavy-cat/DAEC.git
@@ -149,14 +145,14 @@ go run backend/cmd/backend
 
 В примере выше переменные указываются во время запуска.
 
-3. *В другом окне* установите зависимости агента
+5. *В другом окне* установите зависимости агента
 
 ```bash
 cd DAEC/agent
 go mod download
 ```
 
-5. Укажите computing power:
+6. Укажите computing power:
 
 В командах указывается 10, вы можете заменить на сколько угодно, но больше 0.
 
@@ -172,7 +168,7 @@ export COMPUTING_POWER=10
 SET COMPUTING_POWER=10
 ```
 
-6. Запустите агента
+7. Запустите агента
 
 *Можно даже парочку разом.*
 

@@ -1,4 +1,4 @@
-FROM dockerhub.timeweb.cloud/library/golang:1.22.3
+FROM golang:1.22.3-alpine
 LABEL authors="wavycat"
 
 WORKDIR /app

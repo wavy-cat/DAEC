@@ -1,4 +1,3 @@
-version: '3.9'
 services:
   backend:
     build:
@@ -15,7 +14,7 @@ services:
       - backend
 
   caddy:
-    image: dockerhub.timeweb.cloud/library/caddy
+    image: caddy
     volumes:
       - ./frontend:/var/www/frontend
       - ./Caddyfile:/etc/caddy/Caddyfile

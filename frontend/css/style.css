@@ -1,0 +1,52 @@
+main {
+    h3, h5 {
+        font-weight: bold;
+    }
+
+    h5 {
+        margin-top: 40px;
+    }
+
+    margin-top: 200px;
+    max-width: 600px;
+}
+
+.icons {
+    transform: translateY(-3px);
+    filter: invert(0.9);
+    margin-left: 5px;
+}
+
+.block {
+    p {
+        font-weight: bold;
+        font-size: 1.1rem;
+        margin-bottom: 10px;
+    }
+
+    padding: 12px 15px;
+    border-radius: 6px;
+}
+
+.row {
+    gap: 10px;
+    column-gap: 10px;
+    padding: 10px;
+}
+
+footer {
+    text-align: center;
+    padding-top: 7px;
+    padding-bottom: 10px;
+
+    a {
+        font-weight: 500;
+        text-decoration: none;
+    }
+}
+
+@media (max-width: 550px) {
+    .row {
+        flex-direction: column;
+    }
+}

@@ -21,7 +21,7 @@ func (s *solver) solve(num1, num2 float64, operator string, sleepTime int) (task
 		Arg2:          num2,
 		Operation:     operator,
 		OperationTime: sleepTime,
-	}, sleepTimeDuration*2+sleepTimeDuration/2)
+	}, sleepTimeDuration*3+sleepTimeDuration/2)
 
 	var r tasks.TaskResult
 	var err error

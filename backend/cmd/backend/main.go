@@ -11,30 +11,34 @@ import (
 	"backend/internal/utils"
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 	"go.uber.org/zap"
 	"net/http"
 )
 
 // setupMiddlewares оборачивает http.HandlerFunc в мидлвари.
 // Используется в setupRouter
-func setupMiddlewares(handlerFunc http.HandlerFunc, logger *zap.Logger,
+func setupMiddlewares(handlerFunc http.HandlerFunc,
+	logger *zap.Logger,
 	storage *storage.Storage[utils.ExpressionData],
 	manager *tasks.Manager) http.Handler {
-	// LoggingMiddleware -> DatabaseMiddleware -> ManagerMiddleware -> HandlerFunc
-	return &middleware.LoggingMiddleware{
-		Logger: logger,
-		Next: &middleware.DatabaseMiddleware{
-			Storage: storage,
-			Next: &middleware.ManagerMiddleware{
-				Manager: manager,
-				Next:    handlerFunc,
+	// DatabaseMiddleware -> ManagerMiddleware -> LoggingMiddleware -> HandlerFunc
+	return &middleware.DatabaseMiddleware{
+		Storage: storage,
+		Next: &middleware.ManagerMiddleware{
+			Manager: manager,
+			Next: &middleware.LoggingMiddleware{
+				Logger: logger,
+				Next:   handlerFunc,
 			},
 		},
 	}
 }
 
 // setupRouter создаёт новый экземпляр mux.Router и настраивает конфигурацию маршрутизации.
-func setupRouter(logger *zap.Logger, storage *storage.Storage[utils.ExpressionData], manager *tasks.Manager) *mux.Router {
+func setupRouter(logger *zap.Logger,
+	storage *storage.Storage[utils.ExpressionData],
+	manager *tasks.Manager) http.Handler {
 	router := mux.NewRouter()
 
 	// Здесь настраивается маршрутизация aka указание эндпойнтов сервера
@@ -68,7 +72,7 @@ func setupRouter(logger *zap.Logger, storage *storage.Storage[utils.ExpressionDa
 		router.Handle(path, handler).Methods(routeConfig.methods...)
 	}
 
-	return router
+	return cors.Default().Handler(router)
 }
 
 func main() {

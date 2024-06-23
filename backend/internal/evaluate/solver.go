@@ -14,13 +14,14 @@ type solver struct {
 
 func (s *solver) solve(num1, num2 float64, operator string, sleepTime int) (tasks.TaskResult, bool) {
 	id := uuid.Must(uuid.NewRandom())
+	sleepTimeDuration := time.Duration(sleepTime) * time.Millisecond
 	s.manager.AddTask(tasks.TaskData{
 		Id:            id,
 		Arg1:          num1,
 		Arg2:          num2,
 		Operation:     operator,
 		OperationTime: sleepTime,
-	}, time.Duration(sleepTime)*time.Millisecond+3*time.Second)
+	}, sleepTimeDuration*2+sleepTimeDuration/2)
 
 	var r tasks.TaskResult
 	var err error

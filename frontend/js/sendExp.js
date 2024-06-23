@@ -45,12 +45,5 @@ async function sendExpression() {
     await addTask(data.id, "pending", null, expression);
 
     // Следим за статусом задачи 👀
-    let result;
-    do {
-        await sleep(1000); // Пауза 1 секунда между запросами
-        result = await getExpressionByGet(data.id);
-    } while (result.status === "pending");
-
-    // По готовности изменяем задачу в таблице
-    await editTask(data.id, result.status, result.result, expression)
+    await followExp(data.id, expression)
 }

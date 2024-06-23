@@ -20,7 +20,7 @@ async function prepareTable() {
 
 // Собирает HTML текст из данных
 async function taskContentBuilder(id, status, result, expression) {
-    if (result == null) {
+    if (result == null || status === "pending") {
         result = `<span class="text-body-secondary">¯\\_(ツ)_/¯</span>`;
     } else if (status === "error") {
         result = `<span class="text-body-secondary">Безрезультатно</span>`;

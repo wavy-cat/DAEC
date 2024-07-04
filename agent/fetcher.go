@@ -1,11 +1,11 @@
 package main
 
 import (
-	"agent/config"
-	"agent/work"
 	"encoding/json"
 	"fmt"
 	"github.com/google/uuid"
+	"github.com/wavy-cat/DAEC/agent/config"
+	"github.com/wavy-cat/DAEC/agent/work"
 	"go.uber.org/zap"
 	"net/http"
 	"time"

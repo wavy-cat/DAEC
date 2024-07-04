@@ -1,11 +1,11 @@
 package expressions
 
 import (
-	stg "backend/internal/storage"
-	"backend/internal/utils"
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
+	stg "github.com/wavy-cat/DAEC/backend/internal/storage"
+	"github.com/wavy-cat/DAEC/backend/internal/utils"
 	"go.uber.org/zap"
 	"net/http"
 )

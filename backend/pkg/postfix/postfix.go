@@ -1,8 +1,8 @@
 package postfix
 
 import (
-	stk "backend/pkg/stack"
 	"errors"
+	stk "github.com/wavy-cat/DAEC/backend/pkg/stack"
 	"time"
 )
 

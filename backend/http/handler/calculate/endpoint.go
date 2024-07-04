@@ -1,14 +1,14 @@
 package calculate
 
 import (
-	"backend/internal/evaluate"
-	stg "backend/internal/storage"
-	"backend/internal/tasks"
-	"backend/internal/utils"
-	"backend/pkg/postfix"
 	"encoding/json"
 	"fmt"
 	"github.com/google/uuid"
+	"github.com/wavy-cat/DAEC/backend/internal/evaluate"
+	stg "github.com/wavy-cat/DAEC/backend/internal/storage"
+	"github.com/wavy-cat/DAEC/backend/internal/tasks"
+	"github.com/wavy-cat/DAEC/backend/internal/utils"
+	"github.com/wavy-cat/DAEC/backend/pkg/postfix"
 	"go.uber.org/zap"
 	"net/http"
 )

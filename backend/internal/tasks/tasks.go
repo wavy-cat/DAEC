@@ -1,10 +1,10 @@
 package tasks
 
 import (
-	"backend/internal/storage"
-	"backend/pkg/queue"
 	"errors"
 	"github.com/google/uuid"
+	"github.com/wavy-cat/DAEC/backend/internal/storage"
+	"github.com/wavy-cat/DAEC/backend/pkg/queue"
 	"time"
 )
 

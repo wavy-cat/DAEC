@@ -1,4 +1,4 @@
-module backend
+module github.com/wavy-cat/DAEC/backend
 
 go 1.22
 

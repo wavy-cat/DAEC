@@ -1,9 +1,9 @@
 package middleware
 
 import (
-	"backend/internal/storage"
-	"backend/internal/utils"
 	"context"
+	"github.com/wavy-cat/DAEC/backend/internal/storage"
+	"github.com/wavy-cat/DAEC/backend/internal/utils"
 	"net/http"
 )
 

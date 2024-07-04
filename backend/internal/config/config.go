@@ -5,7 +5,7 @@ import (
 	"strconv"
 )
 
-const ServerAddress = ":80"
+const ServerAddress = ":8080"
 
 var (
 	TimeSubtractionMs     int

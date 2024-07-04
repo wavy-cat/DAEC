@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	"backend/internal/tasks"
 	"context"
+	"github.com/wavy-cat/DAEC/backend/internal/tasks"
 	"net/http"
 )
 

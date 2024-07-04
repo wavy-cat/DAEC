@@ -1,10 +1,10 @@
 package task
 
 import (
-	"backend/internal/tasks"
-	"backend/internal/utils"
 	"encoding/json"
 	"fmt"
+	"github.com/wavy-cat/DAEC/backend/internal/tasks"
+	"github.com/wavy-cat/DAEC/backend/internal/utils"
 	"go.uber.org/zap"
 	"net/http"
 )

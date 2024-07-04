@@ -1,9 +1,9 @@
 package main
 
 import (
-	"agent/config"
-	"agent/work"
 	"fmt"
+	"github.com/wavy-cat/DAEC/agent/config"
+	"github.com/wavy-cat/DAEC/agent/work"
 	"go.uber.org/zap"
 )
 

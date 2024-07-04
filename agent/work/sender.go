@@ -1,11 +1,11 @@
 package work
 
 import (
-	"agent/config"
 	"bytes"
 	"encoding/json"
 	"errors"
 	"github.com/google/uuid"
+	"github.com/wavy-cat/DAEC/agent/config"
 	"net/http"
 	"time"
 )

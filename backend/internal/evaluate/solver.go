@@ -1,10 +1,10 @@
 package evaluate
 
 import (
-	"backend/internal/config"
-	"backend/internal/tasks"
-	"backend/pkg/postfix"
 	"github.com/google/uuid"
+	"github.com/wavy-cat/DAEC/backend/internal/config"
+	"github.com/wavy-cat/DAEC/backend/internal/tasks"
+	"github.com/wavy-cat/DAEC/backend/pkg/postfix"
 	"time"
 )
 

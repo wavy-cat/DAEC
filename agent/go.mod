@@ -1,4 +1,4 @@
-module agent
+module github.com/wavy-cat/DAEC/agent
 
 go 1.22
 

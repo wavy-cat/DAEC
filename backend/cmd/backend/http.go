@@ -5,7 +5,6 @@ import (
 	"github.com/rs/cors"
 	"github.com/wavy-cat/DAEC/backend/http/handler/calculate"
 	"github.com/wavy-cat/DAEC/backend/http/handler/expressions"
-	"github.com/wavy-cat/DAEC/backend/http/handler/task"
 	"github.com/wavy-cat/DAEC/backend/http/middleware"
 	"github.com/wavy-cat/DAEC/backend/internal/config"
 	"github.com/wavy-cat/DAEC/backend/internal/storage"
@@ -59,10 +58,6 @@ func setupRouter(logger *zap.Logger,
 			expressions.HandlerById,
 			[]string{"GET"},
 		},
-		"/internal/task": {
-			task.Handler,
-			[]string{"GET", "POST"},
-		},
 	}
 
 	for path, routeConfig := range routes {
@@ -76,7 +71,7 @@ func setupRouter(logger *zap.Logger,
 
 func startHTTPServer(logger *zap.Logger, db *storage.Storage[utils.ExpressionData], manager *tasks.Manager) {
 	logger.Info("Starting the HTTP server...")
-	if err := http.ListenAndServe(config.ServerAddress, setupRouter(logger, db, manager)); err != nil {
+	if err := http.ListenAndServe(config.HTTPAddress, setupRouter(logger, db, manager)); err != nil {
 		logger.Fatal(err.Error())
 	}
 }

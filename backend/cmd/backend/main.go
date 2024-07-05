@@ -35,7 +35,7 @@ func main() {
 	go startHTTPServer(logger, db, manager)
 
 	// Запуск gRPC сервера
-	go startGRPCServer(logger, db, manager)
+	go startGRPCServer(logger, manager)
 
 	select {}
 }

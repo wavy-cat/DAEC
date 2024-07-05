@@ -11,7 +11,7 @@ type TaskData struct {
 	Arg1          float64   `json:"arg1"`           // Первый аргумент операции
 	Arg2          float64   `json:"arg2"`           // Второй аргумент операции
 	Operation     string    `json:"operation"`      // Операция, которую следует выполнить
-	OperationTime int       `json:"operation_time"` // Время, требуемое для выполнения операции в миллисекундах
+	OperationTime uint32    `json:"operation_time"` // Время, требуемое для выполнения операции в миллисекундах
 }
 
 type Task struct {
@@ -21,10 +21,6 @@ type Task struct {
 	Successful     bool // Успешно ли выполнена задача
 	Timeout        time.Duration
 	CompleteBefore time.Time // Время, до которого задача должна быть решена
-}
-
-type TaskWrapper struct {
-	Task TaskData `json:"task"` // Task содержит в себе структуру задачи
 }
 
 type ResultData struct {

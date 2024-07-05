@@ -1,0 +1,36 @@
+syntax = "proto3";
+package tasks;
+option go_package = "github.com/wavy-cat/DAEC/proto";
+
+enum Operation {
+  ADDITION = 0;
+  SUBTRACTION = 1;
+  MULTIPLICATION = 2;
+  DIVISION = 3;
+  EXPONENTIATION = 4;
+}
+
+message Empty {
+  // Пустое сообщение
+}
+
+// Сообщение ответа сервера при получении задачи
+message PullTaskResponse {
+  string id = 1;
+  double arg1 = 2;
+  double arg2 = 3;
+  Operation operation = 4;
+  uint32 operationTime = 5;
+}
+
+// Сообщение запроса клиента к серверу после вычисления задачи.
+message PushTaskRequest {
+  string id = 1;
+  double result = 2;
+  bool successful = 3;
+}
+
+service TasksService {
+  rpc Pull (Empty) returns (PullTaskResponse);
+  rpc Push (PushTaskRequest) returns (Empty);
+}

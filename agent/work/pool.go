@@ -1,6 +1,8 @@
 package work
 
 import (
+	"context"
+	pb "github.com/wavy-cat/DAEC/agent/proto"
 	"go.uber.org/zap"
 	"sync"
 )
@@ -10,11 +12,12 @@ type Pool struct {
 	tasks  chan Expression // Канал, из которого будут браться задачи для обработки
 	wg     sync.WaitGroup
 	logger *zap.Logger
+	client pb.TasksServiceClient
 }
 
 // NewPool Конструктор структуры Pool
-func NewPool(maxGoroutines int, logger *zap.Logger) *Pool {
-	p := Pool{tasks: make(chan Expression), logger: logger}
+func NewPool(maxGoroutines int, logger *zap.Logger, client pb.TasksServiceClient) *Pool {
+	p := Pool{tasks: make(chan Expression), logger: logger, client: client}
 
 	p.wg.Add(maxGoroutines)
 
@@ -27,14 +30,23 @@ func NewPool(maxGoroutines int, logger *zap.Logger) *Pool {
 				w.Execute()
 
 				// отправляем результат
-				var result ResultData
-				if w.Successful {
-					result = ResultData{Id: w.Id, Result: &w.Result}
-				} else {
-					result = ResultData{Id: w.Id, Result: nil}
+				var request pb.PushTaskRequest
+
+				switch w.Successful {
+				case true:
+					request = pb.PushTaskRequest{
+						Id:         w.Id.String(),
+						Result:     w.Result,
+						Successful: true,
+					}
+				default:
+					request = pb.PushTaskRequest{
+						Id:         w.Id.String(),
+						Successful: false,
+					}
 				}
 
-				err := SendResult(result, 3)
+				_, err := client.Push(context.TODO(), &request)
 				if err != nil {
 					logger.Error("Error sending result: " + err.Error())
 				}

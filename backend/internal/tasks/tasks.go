@@ -10,14 +10,14 @@ import (
 
 // Manager Это верхнеуровневый менеджер тасок между оркестратором и агентом
 type Manager struct {
-	queue       *queue.Queue[TaskWrapper] // Очередь нерешённых задач для агента
-	database    *storage.Storage[Task]    // База данных, где хранятся задачи
-	watchStatus chan interface{}          // Канал, который регулирует работу watchTasks
+	queue       *queue.Queue[TaskData] // Очередь нерешённых задач для агента
+	database    *storage.Storage[Task] // База данных, где хранятся задачи
+	watchStatus chan interface{}       // Канал, который регулирует работу watchTasks
 }
 
 func NewManager() *Manager {
 	manager := Manager{
-		queue:       queue.NewQueue[TaskWrapper](),
+		queue:       queue.NewQueue[TaskData](),
 		database:    storage.NewStorage[Task](),
 		watchStatus: make(chan interface{}),
 	}
@@ -48,7 +48,7 @@ func (m *Manager) watchTasks() {
 				if time.Now().After(task.CompleteBefore) {
 					task.Status = "queue"
 					m.database.Set(task.Data.Id, task)
-					m.queue.Enqueue(TaskWrapper{Task: task.Data})
+					m.queue.Enqueue(task.Data)
 				}
 			}
 		}
@@ -79,24 +79,24 @@ func (m *Manager) AddTask(task TaskData, timeout time.Duration) {
 		Timeout: timeout,
 		Status:  "queue",
 	}) // Добавляем задачу в БД
-	m.queue.Enqueue(TaskWrapper{Task: task}) // Добавляем задачу в очередь обработки
+	m.queue.Enqueue(task) // Добавляем задачу в очередь обработки
 }
 
 // GetTask возвращает задачу для обработки
-func (m *Manager) GetTask() (TaskWrapper, bool) {
+func (m *Manager) GetTask() (TaskData, bool) {
 	task, ok := m.queue.Dequeue()
 	if !ok {
 		return task, false
 	}
 
-	t, ok := m.database.Get(task.Task.Id)
+	t, ok := m.database.Get(task.Id)
 	if !ok {
 		return task, false
 	}
 
 	t.Status = "processing"
 	t.CompleteBefore = time.Now().Add(t.Timeout)
-	m.database.Set(task.Task.Id, t)
+	m.database.Set(task.Id, t)
 	return task, true
 }
 

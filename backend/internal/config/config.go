@@ -5,7 +5,8 @@ import (
 	"strconv"
 )
 
-const ServerAddress = ":8080"
+const HTTPAddress = ":8080"          // Адрес HTTP сервера
+const GRPCAddress = "localhost:5000" // Адрес gRPC сервера
 
 var (
 	TimeSubtractionMs     int

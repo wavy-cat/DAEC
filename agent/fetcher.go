@@ -1,75 +1,42 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
+	"context"
 	"github.com/google/uuid"
-	"github.com/wavy-cat/DAEC/agent/config"
+	pb "github.com/wavy-cat/DAEC/agent/proto"
 	"github.com/wavy-cat/DAEC/agent/work"
 	"go.uber.org/zap"
-	"net/http"
+	"strings"
 	"time"
 )
 
-// Task описывает задачу, которую необходимо выполнить
-type Task struct {
-	Id            uuid.UUID `json:"id"`             // Уникальный идентификатор задачи (UUID)
-	Arg1          float64   `json:"arg1"`           // Первый аргумент операции
-	Arg2          float64   `json:"arg2"`           // Второй аргумент операции
-	Operation     string    `json:"operation"`      // Операция, которую следует выполнить
-	OperationTime int       `json:"operation_time"` // Время, требуемое для выполнения операции в миллисекундах
-}
-
-// TaskWrapper представляет собой обёртку вокруг задач, она используется для корректного преобразования вложенных JSON.
-// Его использование обязательно.
-type TaskWrapper struct {
-	Task Task `json:"task"` // Task содержит в себе структуру задачи
-}
-
 // Функция для получения новых задач от оркестратора
-func fetcher(pool *work.Pool, logger *zap.Logger) {
+func fetcher(pool *work.Pool, logger *zap.Logger, client pb.TasksServiceClient) {
 	for {
 		// Отправляем запрос оркестратору
-		response, err := http.Get(config.BackendUrl + "/internal/task")
+		task, err := client.Pull(context.TODO(), &pb.Empty{})
 		if err != nil {
-			logger.Error(fmt.Sprintf("Failed to send request to orchestrator (%s). Try again in 2 seconds...", config.BackendUrl))
-			time.Sleep(2 * time.Second)
-			continue
-		}
-
-		// Проверяем ответ
-		switch response.StatusCode {
-		case 404:
-			// Если новой задачи нет, то ненадолго "засыпаем"
-			time.Sleep(300 * time.Millisecond)
-			continue
-		case 500:
-			logger.Error("An internal orchestrator error occurred. Try again in 2 seconds...")
-			time.Sleep(2 * time.Second)
-			continue
-		case 200:
-			// Скипаем эту часть, она реализована ниже
-		default:
-			logger.Error(fmt.Sprintf("Unexpected response from the server (%d). Try again in 2 seconds...", response.StatusCode))
-			time.Sleep(2 * time.Second)
-			continue
-		}
-
-		// Демаршализируем ответ
-		var taskObj TaskWrapper
-		err = json.NewDecoder(response.Body).Decode(&taskObj)
-		if err != nil {
-			logger.Error("Error unmarshalling JSON in request. Task skipped")
+			if strings.Contains(err.Error(), "no task yet") {
+				// Задачи пока нет, ждём-с
+				time.Sleep(200 * time.Millisecond)
+			} else {
+				// Какая-то ошибка, логируем
+				logger.Error(err.Error())
+			}
 			continue
 		}
 
 		// Создаём новую задачу и отправляем её в пул
-		task := taskObj.Task
+		id, err := uuid.Parse(task.Id)
+		if err != nil {
+			logger.Error(err.Error())
+			continue
+		}
 		expression := work.Expression{
-			Id:            task.Id,
+			Id:            id,
 			Num1:          task.Arg1,
 			Num2:          task.Arg2,
-			Operator:      rune(task.Operation[0]),
+			Operator:      ConvertOperationToRune(task.Operation),
 			OperationTime: time.Duration(task.OperationTime) * time.Millisecond,
 		}
 		pool.Run(expression)

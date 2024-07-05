@@ -20,7 +20,7 @@ func (s *solver) solve(num1, num2 float64, operator string, sleepTime int) (task
 		Arg1:          num1,
 		Arg2:          num2,
 		Operation:     operator,
-		OperationTime: sleepTime,
+		OperationTime: uint32(sleepTime),
 	}, sleepTimeDuration*3+sleepTimeDuration/2)
 
 	var r tasks.TaskResult

@@ -5,13 +5,13 @@ import (
 	"strconv"
 )
 
-var BackendUrl = "http://localhost" // URL оркестратора
+var BackendAddress = "localhost:5000" // gRPC адрес оркестратора
 
 func init() {
-	url := os.Getenv("BACKEND_URL")
+	url := os.Getenv("BACKEND_ADDRESS")
 
 	if url != "" {
-		BackendUrl = url
+		BackendAddress = url
 	}
 }
 

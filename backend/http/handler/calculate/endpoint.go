@@ -26,7 +26,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Получение бд
-	storage, ok := r.Context().Value("storage").(*stg.Storage[utils.ExpressionData])
+	storage, ok := r.Context().Value("storage").(*stg.Storage[utils.Expression])
 	if !ok {
 		logger.Error("Failed to get storage")
 		err := utils.RespondWithDefaultError(w, http.StatusInternalServerError)
@@ -110,7 +110,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Добавляем запись в БД
-	storage.Set(id, utils.ExpressionData{Id: id, Status: "pending"})
+	storage.Set(id, utils.Expression{Id: id, Status: "pending"})
 
 	// Отправляем на обработку
 	go evaluate.Evaluate(postfixNotation, id, storage, manager)

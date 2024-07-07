@@ -10,7 +10,7 @@ type TaskData struct {
 	Id            uuid.UUID `json:"id"`             // Уникальный идентификатор задачи (UUID)
 	Arg1          float64   `json:"arg1"`           // Первый аргумент операции
 	Arg2          float64   `json:"arg2"`           // Второй аргумент операции
-	Operation     string    `json:"operation"`      // Операция, которую следует выполнить
+	Operation     byte      `json:"operation"`      // Операция, которую следует выполнить
 	OperationTime uint32    `json:"operation_time"` // Время, требуемое для выполнения операции в миллисекундах
 }
 

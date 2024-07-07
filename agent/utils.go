@@ -3,7 +3,7 @@ package main
 import "github.com/wavy-cat/DAEC/agent/proto"
 
 // ConvertOperationToRune converts the proto.Operation enum value to its corresponding rune symbol.
-func ConvertOperationToRune(operation proto.Operation) rune {
+func ConvertOperationToRune(operation proto.Operation) byte {
 	switch operation {
 	case proto.Operation_ADDITION:
 		return '+'

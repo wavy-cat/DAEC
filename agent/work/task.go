@@ -11,7 +11,7 @@ type Expression struct {
 	Id            uuid.UUID
 	Num1          float64
 	Num2          float64
-	Operator      rune
+	Operator      byte
 	OperationTime time.Duration // Задержка в миллисекундах
 	Result        float64
 	Successful    bool

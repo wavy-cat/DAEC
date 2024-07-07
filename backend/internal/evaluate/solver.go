@@ -12,7 +12,7 @@ type solver struct {
 	manager *tasks.Manager
 }
 
-func (s *solver) solve(num1, num2 float64, operator string, sleepTime int) (tasks.TaskResult, bool) {
+func (s *solver) solve(num1, num2 float64, operator byte, sleepTime int) (tasks.TaskResult, bool) {
 	id := uuid.Must(uuid.NewRandom())
 	sleepTimeDuration := time.Duration(sleepTime) * time.Millisecond
 	s.manager.AddTask(tasks.TaskData{
@@ -26,7 +26,7 @@ func (s *solver) solve(num1, num2 float64, operator string, sleepTime int) (task
 	var r tasks.TaskResult
 	var err error
 
-	for r, err = s.manager.GetTaskResult(id); r.IsDone == false; r, err = s.manager.GetTaskResult(id) {
+	for r, err = s.manager.GetTaskResult(id); err != nil || r.IsDone == false; r, err = s.manager.GetTaskResult(id) {
 		if err != nil {
 			return r, false
 		}
@@ -40,9 +40,8 @@ func (s *solver) solve(num1, num2 float64, operator string, sleepTime int) (task
 	return r, true
 }
 
-func (s *solver) Addition(num1, num2 *postfix.LazyFloat) *postfix.LazyFloat {
+func (s *solver) generalSolve(num1, num2 *postfix.LazyFloat, operator byte, sleepTime int) *postfix.LazyFloat {
 	var float postfix.LazyFloat
-
 	go func() {
 		// Получаем значения двух операндов
 		n1, n2 := num1.GetValue(), num2.GetValue()
@@ -51,8 +50,8 @@ func (s *solver) Addition(num1, num2 *postfix.LazyFloat) *postfix.LazyFloat {
 			return
 		}
 
-		// Складываем их
-		r, ok := s.solve(n1, n2, "+", config.TimeAdditionMs)
+		// Высчитываем результат
+		r, ok := s.solve(n1, n2, operator, sleepTime)
 		if !ok {
 			float.SetFail()
 			return
@@ -61,94 +60,25 @@ func (s *solver) Addition(num1, num2 *postfix.LazyFloat) *postfix.LazyFloat {
 		// Устанавливаем значение
 		float.SetValue(r.Result)
 	}()
-
 	return &float
+}
+
+func (s *solver) Addition(num1, num2 *postfix.LazyFloat) *postfix.LazyFloat {
+	return s.generalSolve(num1, num2, '+', config.TimeAdditionMs)
 }
 
 func (s *solver) Subtraction(num1, num2 *postfix.LazyFloat) *postfix.LazyFloat {
-	var float postfix.LazyFloat
-
-	go func() {
-		n1, n2 := num1.GetValue(), num2.GetValue()
-		if num1.IsFail || num2.IsFail {
-			float.SetFail()
-			return
-		}
-
-		r, ok := s.solve(n1, n2, "-", config.TimeSubtractionMs)
-		if !ok {
-			float.SetFail()
-			return
-		}
-
-		float.SetValue(r.Result)
-	}()
-
-	return &float
+	return s.generalSolve(num1, num2, '-', config.TimeSubtractionMs)
 }
 
 func (s *solver) Division(num1, num2 *postfix.LazyFloat) *postfix.LazyFloat {
-	var float postfix.LazyFloat
-
-	go func() {
-		n1, n2 := num1.GetValue(), num2.GetValue()
-		if num1.IsFail || num2.IsFail {
-			float.SetFail()
-			return
-		}
-
-		r, ok := s.solve(n1, n2, "/", config.TimeDivisionsMs)
-		if !ok {
-			float.SetFail()
-			return
-		}
-
-		float.SetValue(r.Result)
-	}()
-
-	return &float
+	return s.generalSolve(num1, num2, '/', config.TimeDivisionsMs)
 }
 
 func (s *solver) Multiplication(num1, num2 *postfix.LazyFloat) *postfix.LazyFloat {
-	var float postfix.LazyFloat
-
-	go func() {
-		n1, n2 := num1.GetValue(), num2.GetValue()
-		if num1.IsFail || num2.IsFail {
-			float.SetFail()
-			return
-		}
-
-		r, ok := s.solve(n1, n2, "*", config.TimeMultiplicationsMs)
-		if !ok {
-			float.SetFail()
-			return
-		}
-
-		float.SetValue(r.Result)
-	}()
-
-	return &float
+	return s.generalSolve(num1, num2, '*', config.TimeMultiplicationsMs)
 }
 
 func (s *solver) Exponentiation(num1, num2 *postfix.LazyFloat) *postfix.LazyFloat {
-	var float postfix.LazyFloat
-
-	go func() {
-		n1, n2 := num1.GetValue(), num2.GetValue()
-		if num1.IsFail || num2.IsFail {
-			float.SetFail()
-			return
-		}
-
-		r, ok := s.solve(n1, n2, "^", config.TimeExponentiationMs)
-		if !ok {
-			float.SetFail()
-			return
-		}
-
-		float.SetValue(r.Result)
-	}()
-
-	return &float
+	return s.generalSolve(num1, num2, '^', config.TimeExponentiationMs)
 }

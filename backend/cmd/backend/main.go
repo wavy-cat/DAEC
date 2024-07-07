@@ -27,7 +27,7 @@ func main() {
 	logger.Info("Orchestrator is starting")
 
 	// Создание базы данных и очереди
-	db := storage.NewStorage[utils.ExpressionData]()
+	db := storage.NewStorage[utils.Expression]()
 	manager := tasks.NewManager()
 	defer manager.ShutdownWatcher()
 

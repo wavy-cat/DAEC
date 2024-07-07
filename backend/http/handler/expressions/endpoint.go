@@ -23,7 +23,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Получение бд
-	storage, ok := r.Context().Value("storage").(*stg.Storage[utils.ExpressionData])
+	storage, ok := r.Context().Value("storage").(*stg.Storage[utils.Expression])
 	if !ok {
 		logger.Error("Failed to get storage")
 		err := utils.RespondWithDefaultError(w, http.StatusInternalServerError)
@@ -34,7 +34,12 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	exps := storage.GetAll()
-	err := utils.RespondWithPayload(w, http.StatusOK, utils.ExpressionsSlice{Expressions: exps})
+
+	err := utils.RespondWithPayload(
+		w, http.StatusOK,
+		struct {
+			Expressions []utils.Expression `json:"expressions"`
+		}{Expressions: exps})
 	if err != nil {
 		logger.Error(err.Error())
 	}
@@ -53,7 +58,7 @@ func HandlerById(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Получение бд
-	storage, ok := r.Context().Value("storage").(*stg.Storage[utils.ExpressionData])
+	storage, ok := r.Context().Value("storage").(*stg.Storage[utils.Expression])
 	if !ok {
 		logger.Error("Failed to get storage")
 		err := utils.RespondWithDefaultError(w, http.StatusInternalServerError)
@@ -82,7 +87,11 @@ func HandlerById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = utils.RespondWithPayload(w, http.StatusOK, utils.Expression{Expression: exp})
+	err = utils.RespondWithPayload(
+		w, http.StatusOK,
+		struct {
+			Expression utils.Expression `json:"expression"`
+		}{Expression: exp})
 	if err != nil {
 		logger.Error(err.Error())
 	}

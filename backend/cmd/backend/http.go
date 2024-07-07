@@ -18,7 +18,7 @@ import (
 // Используется в setupRouter
 func setupMiddlewares(handlerFunc http.HandlerFunc,
 	logger *zap.Logger,
-	storage *storage.Storage[utils.ExpressionData],
+	storage *storage.Storage[utils.Expression],
 	manager *tasks.Manager) http.Handler {
 	// DatabaseMiddleware -> ManagerMiddleware -> LoggingMiddleware -> HandlerFunc
 	return &middleware.DatabaseMiddleware{
@@ -35,7 +35,7 @@ func setupMiddlewares(handlerFunc http.HandlerFunc,
 
 // setupRouter создаёт новый экземпляр mux.Router и настраивает конфигурацию маршрутизации.
 func setupRouter(logger *zap.Logger,
-	storage *storage.Storage[utils.ExpressionData],
+	storage *storage.Storage[utils.Expression],
 	manager *tasks.Manager) http.Handler {
 	router := mux.NewRouter()
 
@@ -69,7 +69,7 @@ func setupRouter(logger *zap.Logger,
 	return cors.Default().Handler(router)
 }
 
-func startHTTPServer(logger *zap.Logger, db *storage.Storage[utils.ExpressionData], manager *tasks.Manager) {
+func startHTTPServer(logger *zap.Logger, db *storage.Storage[utils.Expression], manager *tasks.Manager) {
 	logger.Info("Starting the HTTP server...")
 	if err := http.ListenAndServe(config.HTTPAddress, setupRouter(logger, db, manager)); err != nil {
 		logger.Fatal(err.Error())

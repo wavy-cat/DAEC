@@ -21,17 +21,17 @@ func CheckCharsInString(str string, chars []rune) (bool, rune) {
 }
 
 // ParseOperation Преобразует строковую операцию в соответствующую Operation константу.
-func ParseOperation(operation string) pb.Operation {
+func ParseOperation(operation byte) pb.Operation {
 	switch operation {
-	case "+":
+	case '+':
 		return pb.Operation_ADDITION
-	case "-":
+	case '-':
 		return pb.Operation_SUBTRACTION
-	case "*":
+	case '*':
 		return pb.Operation_MULTIPLICATION
-	case "/":
+	case '/':
 		return pb.Operation_DIVISION
-	case "^":
+	case '^':
 		return pb.Operation_EXPONENTIATION
 	}
 	panic("unknown operation")

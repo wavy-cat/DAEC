@@ -22,6 +22,7 @@ func fetcher(pool *work.Pool, logger *zap.Logger, client pb.TasksServiceClient) 
 			} else {
 				// Какая-то ошибка, логируем
 				logger.Error(err.Error())
+				time.Sleep(2 * time.Second)
 			}
 			continue
 		}
@@ -40,5 +41,6 @@ func fetcher(pool *work.Pool, logger *zap.Logger, client pb.TasksServiceClient) 
 			OperationTime: time.Duration(task.OperationTime) * time.Millisecond,
 		}
 		pool.Run(expression)
+		logger.Info("starting to process a new task", zap.String("id", id.String()))
 	}
 }

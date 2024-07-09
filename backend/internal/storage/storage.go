@@ -33,10 +33,10 @@ func (s *Storage[T]) Get(key any) (T, bool) {
 
 // GetAll Получение всех записей в виде слайса структуры Key any, Value T.
 func (s *Storage[T]) GetAll() []T {
-	s.mutex.Lock()
-	defer s.mutex.Unlock()
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
 
-	r := make([]T, 0)
+	r := make([]T, 0, len(s.database))
 
 	for _, val := range s.database {
 		r = append(r, val)

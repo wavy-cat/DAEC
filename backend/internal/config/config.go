@@ -8,7 +8,7 @@ import (
 var HTTPAddress = ":80"   // Адрес HTTP сервера
 var GRPCAddress = ":5000" // Адрес gRPC сервера
 
-const DatabasePath = "database.db" // Путь до файла базы данных
+var DatabasePath = "database.db" // Путь до файла базы данных
 
 var (
 	TimeSubtractionMs     int
@@ -59,4 +59,9 @@ func setSleepTime() {
 
 func init() {
 	setSleepTime()
+	setAddresses()
+
+	if dbPath := os.Getenv("DATABASE_PATH"); dbPath != "" {
+		DatabasePath = dbPath
+	}
 }

@@ -1,0 +1,1 @@
+const ServerAddress = `http://localhost`; // Адрес оркестратора

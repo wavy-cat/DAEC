@@ -5,7 +5,7 @@ function sleep(ms) {
 // Отправляет запрос оркестратору на получение выражения по его ID
 async function getExpressionByGet(id) {
     let result;
-    await fetch('http://localhost/api/v1/expressions/' + id)
+    await fetch(`${ServerAddress}/api/v1/expressions/${id}`)
         .then(response => response.json())
         .then(data => {
             result = data.expression
@@ -22,7 +22,7 @@ async function sendExpression() {
     // Отправляем запрос
     let reqData = {expression: expression};
     let response = await fetch(
-        'http://localhost/api/v1/calculate',
+        `${ServerAddress}/api/v1/calculate`,
         {
             method: 'POST',
             headers: {

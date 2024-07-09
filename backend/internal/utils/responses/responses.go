@@ -1,4 +1,4 @@
-package utils
+package responses
 
 import (
 	"encoding/json"
@@ -41,9 +41,4 @@ func RespondWithErrorMessage(w http.ResponseWriter, statusCode int, message stri
 // Текст берётся из http.StatusText.
 func RespondWithDefaultError(w http.ResponseWriter, statusCode int) error {
 	return RespondWithErrorMessage(w, statusCode, http.StatusText(statusCode))
-}
-
-// RespondOnlyCode отправляет пустой ответ, состоящий только из statusCode.
-func RespondOnlyCode(w http.ResponseWriter, statusCode int) {
-	w.WriteHeader(statusCode)
 }

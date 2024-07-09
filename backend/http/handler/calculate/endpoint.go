@@ -9,6 +9,7 @@ import (
 	"github.com/wavy-cat/DAEC/backend/internal/evaluate"
 	"github.com/wavy-cat/DAEC/backend/internal/tasks"
 	"github.com/wavy-cat/DAEC/backend/internal/utils"
+	"github.com/wavy-cat/DAEC/backend/internal/utils/responses"
 	"github.com/wavy-cat/DAEC/backend/pkg/postfix"
 	"go.uber.org/zap"
 	"net/http"
@@ -19,7 +20,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	logger, ok := r.Context().Value("logger").(*zap.Logger)
 	if !ok {
 		fmt.Println("failed to get logger in calculate")
-		err := utils.RespondWithDefaultError(w, http.StatusInternalServerError)
+		err := responses.RespondWithDefaultError(w, http.StatusInternalServerError)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -30,7 +31,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	db, ok := r.Context().Value("database").(*sql.DB)
 	if !ok {
 		logger.Error("failed to get database")
-		err := utils.RespondWithDefaultError(w, http.StatusInternalServerError)
+		err := responses.RespondWithDefaultError(w, http.StatusInternalServerError)
 		if err != nil {
 			logger.Error("failed to send response", zap.String("error", err.Error()))
 		}
@@ -41,7 +42,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	manager, ok := r.Context().Value("manager").(*tasks.Manager)
 	if !ok {
 		logger.Error("failed to get tasks manager")
-		err := utils.RespondWithDefaultError(w, http.StatusInternalServerError)
+		err := responses.RespondWithDefaultError(w, http.StatusInternalServerError)
 		if err != nil {
 			logger.Error("failed to send response", zap.String("error", err.Error()))
 		}
@@ -52,7 +53,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	var data DataRequest
 	err := json.NewDecoder(r.Body).Decode(&data)
 	if err != nil {
-		err := utils.RespondWithErrorMessage(w, http.StatusUnprocessableEntity, err.Error())
+		err := responses.RespondWithErrorMessage(w, http.StatusUnprocessableEntity, err.Error())
 		if err != nil {
 			logger.Error("failed to send response", zap.String("error", err.Error()))
 		}
@@ -62,7 +63,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	// Проверка, что выражение не пустое
 	if expression == "" {
-		err := utils.RespondWithErrorMessage(w, http.StatusUnprocessableEntity, "expression must not be empty")
+		err := responses.RespondWithErrorMessage(w, http.StatusUnprocessableEntity, "expression must not be empty")
 		if err != nil {
 			logger.Error("failed to send response", zap.String("error", err.Error()))
 		}
@@ -72,7 +73,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	// Проверка, что выражение не содержит запрещённые символы
 	var allowedChars = []rune{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '-', '(', ')', '/', '*', '^', '.', ' '}
 	if contains, char := utils.CheckCharsInString(expression, allowedChars); !contains {
-		err := utils.RespondWithErrorMessage(w, http.StatusUnprocessableEntity, "forbidden symbol found: "+string(char))
+		err := responses.RespondWithErrorMessage(w, http.StatusUnprocessableEntity, "forbidden symbol found: "+string(char))
 		if err != nil {
 			logger.Error("failed to send response", zap.String("error", err.Error()))
 		}
@@ -83,7 +84,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	postfixNotation, err := postfix.Convertor(expression)
 	if err != nil {
 		// Какая-то проблема с выражением
-		err := utils.RespondWithErrorMessage(w, http.StatusUnprocessableEntity, err.Error())
+		err := responses.RespondWithErrorMessage(w, http.StatusUnprocessableEntity, err.Error())
 		if err != nil {
 			logger.Error("failed to send response", zap.String("error", err.Error()))
 		}
@@ -93,7 +94,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	// Добавляем выражение в БД
 	id, err := database.InsertExpression(context.TODO(), db, &database.Expression{Status: "pending", Content: expression})
 	if err != nil {
-		err := utils.RespondWithDefaultError(w, http.StatusInternalServerError)
+		err := responses.RespondWithDefaultError(w, http.StatusInternalServerError)
 		if err != nil {
 			logger.Error("failed to add expression to database", zap.String("error", err.Error()))
 		}
@@ -101,7 +102,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Отправка ответа
-	err = utils.RespondWithPayload(w, http.StatusCreated, DataResponse{Id: id})
+	err = responses.RespondWithPayload(w, http.StatusCreated, DataResponse{Id: id})
 	if err != nil {
 		logger.Error("failed to send response", zap.String("error", err.Error()))
 	}

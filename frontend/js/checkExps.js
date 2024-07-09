@@ -8,7 +8,7 @@ async function getData() {
                 currentTimeElement.innerHTML = "Вы ещё не отсылали задач";
             } else {
                 data.expressions.forEach(async function (item, _) {
-                    await addTask(item.id, item.status, item.result)
+                    await addTask(item.id, item.status, item.result, item.content)
                 })
             }
         })

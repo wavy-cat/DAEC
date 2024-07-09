@@ -31,11 +31,15 @@ func main() {
 	}
 	defer db.Close()
 
+	if err = db.Ping(); err != nil {
+		logger.Fatal("impossible to ping the database", zap.String("error", err.Error()))
+	}
+
 	if err = database.CreateTables(context.TODO(), db); err != nil {
 		logger.Fatal("failed to create required tables in database", zap.String("error", err.Error()))
 	}
 
-	// Создание базы данных и очереди
+	// Создание менеджера задач
 	manager := tasks.NewManager()
 	defer manager.ShutdownWatcher()
 

@@ -5,10 +5,10 @@ import (
 	"strconv"
 )
 
-const HTTPAddress = ":8080"          // Адрес HTTP сервера
-const GRPCAddress = "localhost:5000" // Адрес gRPC сервера
+var HTTPAddress = ":80"   // Адрес HTTP сервера
+var GRPCAddress = ":5000" // Адрес gRPC сервера
 
-const DatabasePath = "../database.db" // Путь до файла базы данных
+const DatabasePath = "database.db" // Путь до файла базы данных
 
 var (
 	TimeSubtractionMs     int
@@ -18,7 +18,17 @@ var (
 	TimeAdditionMs        int
 )
 
-func init() {
+func setAddresses() {
+	if httpAddr := os.Getenv("HTTP_ADDRESS"); httpAddr != "" {
+		HTTPAddress = httpAddr
+	}
+
+	if grpcAddr := os.Getenv("GRPC_ADDRESS"); grpcAddr != "" {
+		GRPCAddress = grpcAddr
+	}
+}
+
+func setSleepTime() {
 	var err error
 
 	TimeAdditionMs, err = strconv.Atoi(os.Getenv("TIME_ADDITION_MS"))
@@ -45,4 +55,8 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func init() {
+	setSleepTime()
 }

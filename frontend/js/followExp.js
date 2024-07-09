@@ -1,10 +1,10 @@
-async function followExp(id, expression = null) {
-    let result;
-    do {
-        await sleep(1000); // Пауза 1 секунда между запросами
-        result = await getExpressionByGet(id);
-    } while (result.status === "pending");
-
-    // По готовности изменяем задачу в таблице
-    await editTask(id, result.status, result.result, expression)
+async function followExp(expressionId) {
+    const {id, status, result, content} = await getExpressionByID(expressionId)
+    if (status !== 'pending') {
+        const row = document.getElementById(expressionId);
+        if (!row) return;
+        return row.innerHTML = await taskContentBuilder(id, status, result, content);
+    }
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    await followExp(id);
 }

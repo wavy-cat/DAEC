@@ -1,18 +1,20 @@
 async function getData() {
     const currentTimeElement = document.getElementById("no-exps");
+    const response = await fetch('http://localhost/api/v1/expressions')
+    const data = await response.json();
+    const tbody = document.getElementById('tbody');
 
-    await fetch('http://localhost/api/v1/expressions')
-        .then(response => response.json())
-        .then(data => {
-            if (data.expressions.length === 0) {
-                currentTimeElement.innerHTML = "Вы ещё не отсылали задач";
-            } else {
-                data.expressions.forEach(async function (item, _) {
-                    await addTask(item.id, item.status, item.result, item.content)
-                })
-            }
-        })
-        .catch(error => console.error('Error:', error));
+    const expressions = data?.expressions
+    if (!expressions || expressions.length === 0) {
+        return currentTimeElement.innerHTML = "Вы ещё не отсылали задач";
+    }
+    
+    expressions.map(async ({id, status, result, content}) => {
+        tbody.insertAdjacentHTML('afterbegin', await taskContentBuilder(id, status, result, content));
+        if (status === 'pending') await followExp(id)
+    })
+
+    await prepareTable()
 }
 
 document.addEventListener("DOMContentLoaded", function () {

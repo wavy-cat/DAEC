@@ -1,5 +1,7 @@
 services:
   backend:
+    volumes:
+      - ./database.db:/app/database.db
     build:
       context: ./backend
     env_file:

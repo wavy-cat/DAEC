@@ -7,4 +7,6 @@ COPY . .
 
 RUN go mod download
 
-ENTRYPOINT ["go", "run", "agent"]
+RUN go build -o /daec-agent github.com/wavy-cat/DAEC/agent
+
+ENTRYPOINT ["/daec-agent"]

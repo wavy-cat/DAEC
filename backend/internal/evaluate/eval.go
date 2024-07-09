@@ -1,18 +1,17 @@
 package evaluate
 
 import (
-	"github.com/google/uuid"
-	"github.com/wavy-cat/DAEC/backend/internal/storage"
+	"context"
+	"database/sql"
+	"github.com/wavy-cat/DAEC/backend/internal/database"
 	"github.com/wavy-cat/DAEC/backend/internal/tasks"
-	"github.com/wavy-cat/DAEC/backend/internal/utils"
 	"github.com/wavy-cat/DAEC/backend/pkg/postfix"
 	"time"
 )
 
-// Evaluate Вычисляет значение выражения в постфиксной записи.
+// Evaluate вычисляет значение выражения в постфиксной записи.
 // Ничего не возвращает, работает с БД напрямую.
-// Необходимо запускать в другой горутине.
-func Evaluate(postfixNotation []any, id uuid.UUID, storage *storage.Storage[utils.Expression], manager *tasks.Manager) {
+func Evaluate(postfixNotation []any, id int64, db *sql.DB, manager *tasks.Manager) error {
 	result := postfix.Calculate(postfixNotation, &solver{manager})
 
 	for !result.IsDone {
@@ -20,15 +19,17 @@ func Evaluate(postfixNotation []any, id uuid.UUID, storage *storage.Storage[util
 	}
 
 	var status string
-	if result.Error != nil {
-		status = "error"
-	} else {
+	switch result.Error {
+	case nil:
 		status = "done"
+	default:
+		status = "error"
 	}
 
-	storage.Set(id, utils.Expression{
-		Id:     id,
-		Status: status,
-		Result: result.Result,
-	})
+	err := database.UpdateExpression(context.TODO(), db, id, status, result.Result)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -1,28 +1,24 @@
 package main
 
 import (
+	"database/sql"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 	"github.com/wavy-cat/DAEC/backend/http/handler/calculate"
 	"github.com/wavy-cat/DAEC/backend/http/handler/expressions"
 	"github.com/wavy-cat/DAEC/backend/http/middleware"
 	"github.com/wavy-cat/DAEC/backend/internal/config"
-	"github.com/wavy-cat/DAEC/backend/internal/storage"
 	"github.com/wavy-cat/DAEC/backend/internal/tasks"
-	"github.com/wavy-cat/DAEC/backend/internal/utils"
 	"go.uber.org/zap"
 	"net/http"
 )
 
 // setupMiddlewares оборачивает http.HandlerFunc в мидлвари.
 // Используется в setupRouter
-func setupMiddlewares(handlerFunc http.HandlerFunc,
-	logger *zap.Logger,
-	storage *storage.Storage[utils.Expression],
-	manager *tasks.Manager) http.Handler {
+func setupMiddlewares(handlerFunc http.HandlerFunc, logger *zap.Logger, db *sql.DB, manager *tasks.Manager) http.Handler {
 	// DatabaseMiddleware -> ManagerMiddleware -> LoggingMiddleware -> HandlerFunc
 	return &middleware.DatabaseMiddleware{
-		Storage: storage,
+		Database: db,
 		Next: &middleware.ManagerMiddleware{
 			Manager: manager,
 			Next: &middleware.LoggingMiddleware{
@@ -34,9 +30,7 @@ func setupMiddlewares(handlerFunc http.HandlerFunc,
 }
 
 // setupRouter создаёт новый экземпляр mux.Router и настраивает конфигурацию маршрутизации.
-func setupRouter(logger *zap.Logger,
-	storage *storage.Storage[utils.Expression],
-	manager *tasks.Manager) http.Handler {
+func setupRouter(logger *zap.Logger, db *sql.DB, manager *tasks.Manager) http.Handler {
 	router := mux.NewRouter()
 
 	// Здесь настраивается маршрутизация aka указание эндпойнтов сервера
@@ -62,14 +56,14 @@ func setupRouter(logger *zap.Logger,
 
 	for path, routeConfig := range routes {
 		// Чтобы не оборачивать функции в мидлвари вручную используется setupMiddlewares
-		handler := setupMiddlewares(routeConfig.handler, logger, storage, manager)
+		handler := setupMiddlewares(routeConfig.handler, logger, db, manager)
 		router.Handle(path, handler).Methods(routeConfig.methods...)
 	}
 
 	return cors.Default().Handler(router)
 }
 
-func startHTTPServer(logger *zap.Logger, db *storage.Storage[utils.Expression], manager *tasks.Manager) {
+func startHTTPServer(logger *zap.Logger, db *sql.DB, manager *tasks.Manager) {
 	logger.Info("Starting the HTTP server...")
 	if err := http.ListenAndServe(config.HTTPAddress, setupRouter(logger, db, manager)); err != nil {
 		logger.Fatal(err.Error())

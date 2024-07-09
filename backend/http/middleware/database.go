@@ -2,18 +2,17 @@ package middleware
 
 import (
 	"context"
-	"github.com/wavy-cat/DAEC/backend/internal/storage"
-	"github.com/wavy-cat/DAEC/backend/internal/utils"
+	"database/sql"
 	"net/http"
 )
 
 // DatabaseMiddleware - Middleware для передачи объекта базы данных (Storage) в обработчик
 type DatabaseMiddleware struct {
-	Storage *storage.Storage[utils.Expression] // Указатель на структуру Storage (БД)
-	Next    http.Handler                       // Функция, вызываемая middleware, которая будет обрабатывать http запрос
+	Database *sql.DB      // Указатель на объект базы данных
+	Next     http.Handler // Функция, вызываемая middleware, которая будет обрабатывать http запрос
 }
 
 func (mw *DatabaseMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	r = r.WithContext(context.WithValue(r.Context(), "storage", mw.Storage))
+	r = r.WithContext(context.WithValue(r.Context(), "database", mw.Database))
 	mw.Next.ServeHTTP(w, r)
 }

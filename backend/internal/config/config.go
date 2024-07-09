@@ -8,6 +8,8 @@ import (
 const HTTPAddress = ":8080"          // Адрес HTTP сервера
 const GRPCAddress = "localhost:5000" // Адрес gRPC сервера
 
+const DatabasePath = "../database.db" // Путь до файла базы данных
+
 var (
 	TimeSubtractionMs     int
 	TimeMultiplicationsMs int

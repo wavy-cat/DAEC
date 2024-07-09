@@ -1,11 +1,12 @@
 package calculate
 
 import (
+	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
-	"github.com/google/uuid"
+	"github.com/wavy-cat/DAEC/backend/internal/database"
 	"github.com/wavy-cat/DAEC/backend/internal/evaluate"
-	stg "github.com/wavy-cat/DAEC/backend/internal/storage"
 	"github.com/wavy-cat/DAEC/backend/internal/tasks"
 	"github.com/wavy-cat/DAEC/backend/internal/utils"
 	"github.com/wavy-cat/DAEC/backend/pkg/postfix"
@@ -17,7 +18,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	// Получение логгера
 	logger, ok := r.Context().Value("logger").(*zap.Logger)
 	if !ok {
-		fmt.Println("Failed to get logger in calculate")
+		fmt.Println("failed to get logger in calculate")
 		err := utils.RespondWithDefaultError(w, http.StatusInternalServerError)
 		if err != nil {
 			fmt.Println(err)
@@ -26,12 +27,12 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Получение бд
-	storage, ok := r.Context().Value("storage").(*stg.Storage[utils.Expression])
+	db, ok := r.Context().Value("database").(*sql.DB)
 	if !ok {
-		logger.Error("Failed to get storage")
+		logger.Error("failed to get database")
 		err := utils.RespondWithDefaultError(w, http.StatusInternalServerError)
 		if err != nil {
-			logger.Error(err.Error())
+			logger.Error("failed to send response", zap.String("error", err.Error()))
 		}
 		return
 	}
@@ -39,10 +40,10 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	// Получение менеджера задач
 	manager, ok := r.Context().Value("manager").(*tasks.Manager)
 	if !ok {
-		logger.Error("Failed to get tasks manager")
+		logger.Error("failed to get tasks manager")
 		err := utils.RespondWithDefaultError(w, http.StatusInternalServerError)
 		if err != nil {
-			logger.Error(err.Error())
+			logger.Error("failed to send response", zap.String("error", err.Error()))
 		}
 		return
 	}
@@ -53,48 +54,48 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		err := utils.RespondWithErrorMessage(w, http.StatusUnprocessableEntity, err.Error())
 		if err != nil {
-			logger.Error(err.Error())
+			logger.Error("failed to send response", zap.String("error", err.Error()))
 		}
 		return
 	}
+	expression := data.Expression
 
 	// Проверка, что выражение не пустое
-	if data.Expression == "" {
+	if expression == "" {
 		err := utils.RespondWithErrorMessage(w, http.StatusUnprocessableEntity, "expression must not be empty")
 		if err != nil {
-			logger.Error(err.Error())
+			logger.Error("failed to send response", zap.String("error", err.Error()))
 		}
 		return
 	}
 
 	// Проверка, что выражение не содержит запрещённые символы
 	var allowedChars = []rune{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '-', '(', ')', '/', '*', '^', '.', ' '}
-	if contains, char := utils.CheckCharsInString(data.Expression, allowedChars); !contains {
+	if contains, char := utils.CheckCharsInString(expression, allowedChars); !contains {
 		err := utils.RespondWithErrorMessage(w, http.StatusUnprocessableEntity, "forbidden symbol found: "+string(char))
 		if err != nil {
-			logger.Error(err.Error())
+			logger.Error("failed to send response", zap.String("error", err.Error()))
 		}
 		return
 	}
 
 	// Переводим выражение в постфиксную запись (пытаемся)
-	postfixNotation, err := postfix.Convertor(data.Expression)
+	postfixNotation, err := postfix.Convertor(expression)
 	if err != nil {
 		// Какая-то проблема с выражением
 		err := utils.RespondWithErrorMessage(w, http.StatusUnprocessableEntity, err.Error())
 		if err != nil {
-			logger.Error(err.Error())
+			logger.Error("failed to send response", zap.String("error", err.Error()))
 		}
 		return
 	}
 
-	// Генерируем ID
-	id, err := uuid.NewRandom() // генерируем id
+	// Добавляем выражение в БД
+	id, err := database.InsertExpression(context.TODO(), db, &database.Expression{Status: "pending", Content: expression})
 	if err != nil {
-		logger.Error(err.Error())
 		err := utils.RespondWithDefaultError(w, http.StatusInternalServerError)
 		if err != nil {
-			logger.Error(err.Error())
+			logger.Error("failed to add expression to database", zap.String("error", err.Error()))
 		}
 		return
 	}
@@ -102,16 +103,14 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	// Отправка ответа
 	err = utils.RespondWithPayload(w, http.StatusCreated, DataResponse{Id: id})
 	if err != nil {
-		logger.Error(err.Error())
+		logger.Error("failed to send response", zap.String("error", err.Error()))
 	}
-	err = r.Body.Close()
-	if err != nil {
-		logger.Error(err.Error())
-	}
-
-	// Добавляем запись в БД
-	storage.Set(id, utils.Expression{Id: id, Status: "pending"})
 
 	// Отправляем на обработку
-	go evaluate.Evaluate(postfixNotation, id, storage, manager)
+	go func(postfixNotation []any, id int64, db *sql.DB, manager *tasks.Manager) {
+		err := evaluate.Evaluate(postfixNotation, id, db, manager)
+		if err != nil {
+			logger.Error("error from Evaluate", zap.String("error", err.Error()))
+		}
+	}(postfixNotation, id, db, manager)
 }

@@ -95,6 +95,8 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	logger.Info("new user login", zap.String("user", user.Login), zap.Time("at", time.Now()))
+
 	err = responses.RespondWithPayload(w, http.StatusOK, LoginResponse{
 		Token:  tokenString,
 		Expire: now.Add(time.Hour).Unix(),

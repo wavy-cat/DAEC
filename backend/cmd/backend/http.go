@@ -14,17 +14,32 @@ import (
 	"net/http"
 )
 
-// setupMiddlewares оборачивает http.HandlerFunc в мидлвари.
-// Используется в setupRouter
-func setupMiddlewares(handlerFunc http.HandlerFunc, logger *zap.Logger, db *sql.DB, manager *tasks.Manager) http.Handler {
-	// DatabaseMiddleware -> ManagerMiddleware -> LoggingMiddleware -> HandlerFunc
+// setupBaseMiddlewares оборачивает http.HandlerFunc в базовые мидлвари (Database и Logging).
+func setupBaseMiddlewares(handlerFunc http.HandlerFunc, logger *zap.Logger, db *sql.DB) http.Handler {
+	// DatabaseMiddleware -> LoggingMiddleware -> HandlerFunc
 	return &middleware.DatabaseMiddleware{
 		Database: db,
-		Next: &middleware.ManagerMiddleware{
-			Manager: manager,
-			Next: &middleware.LoggingMiddleware{
-				Logger: logger,
-				Next:   handlerFunc,
+		Next: &middleware.LoggingMiddleware{
+			Logger: logger,
+			Next:   handlerFunc,
+		},
+	}
+}
+
+// setupFullMiddlewares оборачивает http.HandlerFunc во все мидлвари.
+func setupFullMiddlewares(handlerFunc http.HandlerFunc, logger *zap.Logger, db *sql.DB, manager *tasks.Manager) http.Handler {
+	// Auth → Database → Manager → Logging → HandlerFunc
+	return &middleware.AuthMiddleware{
+		Database: db,
+		Logger:   logger,
+		Next: &middleware.DatabaseMiddleware{
+			Database: db,
+			Next: &middleware.ManagerMiddleware{
+				Manager: manager,
+				Next: &middleware.LoggingMiddleware{
+					Logger: logger,
+					Next:   handlerFunc,
+				},
 			},
 		},
 	}
@@ -36,36 +51,49 @@ func setupRouter(logger *zap.Logger, db *sql.DB, manager *tasks.Manager) http.Ha
 
 	// Здесь настраивается маршрутизация aka указание эндпойнтов сервера
 	routes := map[string]struct {
-		handler http.HandlerFunc
-		method  string
+		handler     http.HandlerFunc
+		method      string
+		middlewares string
 	}{
 		// Указываются тут, если что.
 		// Ключ — путь, значение — структура из объекта HandlerFunc и разрешённых методов.
 		"/api/v1/calculate": {
 			calculate.Handler,
 			"POST",
+			"full",
 		},
 		"/api/v1/expressions": {
 			expressions.Handler,
 			"GET",
+			"full",
 		},
 		"/api/v1/expressions/{id}": {
 			expressions.HandlerById,
 			"GET",
+			"full",
 		},
 		"/api/v1/register": {
 			auth.RegisterHandler,
 			"POST",
+			"base",
 		},
 		"/api/v1/login": {
 			auth.LoginHandler,
 			"POST",
+			"base",
 		},
 	}
 
 	for path, routeConfig := range routes {
 		// Чтобы не оборачивать функции в мидлвари вручную используется setupMiddlewares
-		handler := setupMiddlewares(routeConfig.handler, logger, db, manager)
+		var handler http.Handler
+		switch routeConfig.middlewares {
+		case "full":
+			handler = setupFullMiddlewares(routeConfig.handler, logger, db, manager)
+		default:
+			handler = setupBaseMiddlewares(routeConfig.handler, logger, db)
+		}
+
 		router.Handle(path, handler).Methods(routeConfig.method)
 	}
 

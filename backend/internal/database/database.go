@@ -19,12 +19,12 @@ func CreateTables(ctx context.Context, db *sql.DB) error {
 				id INTEGER PRIMARY KEY AUTOINCREMENT,
 				status TEXT NOT NULL,
 				result REAL NOT NULL,
-				content TEXT NOT NULL
+				content TEXT NOT NULL,
+				user_id INTEGER NOT NULL,
 			
--- 				FOREIGN KEY (user_id)  REFERENCES expressions (id)
+				FOREIGN KEY (user_id) REFERENCES users (id)
 			);`
 	)
-	// TODO: Реализовать привязку выражения к пользователю
 
 	if _, err := db.ExecContext(ctx, usersTable); err != nil {
 		return err

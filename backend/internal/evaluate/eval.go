@@ -26,7 +26,11 @@ func Evaluate(postfixNotation []any, id int64, db *sql.DB, manager *tasks.Manage
 		status = "error"
 	}
 
-	err := database.UpdateExpression(context.TODO(), db, id, status, result.Result)
+	err := database.UpdateExpression(context.TODO(), db, &database.Expression{
+		Id:     id,
+		Status: status,
+		Result: result.Result,
+	})
 	if err != nil {
 		return err
 	}

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/wavy-cat/DAEC/backend/internal/config"
+	"github.com/wavy-cat/DAEC/backend/internal/database"
 	"github.com/wavy-cat/DAEC/backend/internal/utils/responses"
 	"go.uber.org/zap"
 	"net/http"
@@ -62,6 +63,16 @@ func (mw *AuthMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	r = r.WithContext(context.WithValue(r.Context(), "username", claims["name"]))
+	// Получаем пользователя из базы данных
+	user, err := database.SelectUserByLogin(context.TODO(), mw.Database, claims["name"].(string))
+	if err != nil {
+		mw.Logger.Error("failed to get user from database", zap.String("error", err.Error()))
+		err := responses.RespondWithPayload(w, http.StatusInternalServerError, err.Error())
+		if err != nil {
+			mw.Logger.Error("failed to send response", zap.String("error", err.Error()))
+		}
+		return
+	}
+	r = r.WithContext(context.WithValue(r.Context(), "user", user))
 	mw.Next.ServeHTTP(w, r)
 }

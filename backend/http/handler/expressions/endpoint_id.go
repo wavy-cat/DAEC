@@ -25,6 +25,17 @@ func HandlerById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Получение пользователя
+	user, ok := r.Context().Value("user").(database.User)
+	if !ok {
+		logger.Error("failed to get user")
+		err := responses.RespondWithDefaultError(w, http.StatusInternalServerError)
+		if err != nil {
+			logger.Error("failed to send response", zap.String("error", err.Error()))
+		}
+		return
+	}
+
 	// Получение бд
 	db, ok := r.Context().Value("database").(*sql.DB)
 	if !ok {
@@ -56,9 +67,9 @@ func HandlerById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	exp, err := database.SelectExpressionByID(context.TODO(), db, int64(id))
+	exp, err := database.SelectUserExpressionByID(context.TODO(), db, user.Id, int64(id))
 	if err != nil {
-		err := responses.RespondWithErrorMessage(w, http.StatusNotFound, err.Error())
+		err := responses.RespondWithDefaultError(w, http.StatusNotFound)
 		if err != nil {
 			logger.Error("failed to send response", zap.String("error", err.Error()))
 		}

@@ -23,6 +23,17 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Получение пользователя
+	user, ok := r.Context().Value("user").(database.User)
+	if !ok {
+		logger.Error("failed to get user")
+		err := responses.RespondWithDefaultError(w, http.StatusInternalServerError)
+		if err != nil {
+			logger.Error("failed to send response", zap.String("error", err.Error()))
+		}
+		return
+	}
+
 	// Получение бд
 	db, ok := r.Context().Value("database").(*sql.DB)
 	if !ok {
@@ -34,7 +45,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	exps, err := database.SelectExpressions(context.TODO(), db)
+	exps, err := database.SelectUserExpressions(context.TODO(), db, user.Id)
 	if err != nil {
 		logger.Error("failed to expressions from database", zap.String("error", err.Error()))
 		err := responses.RespondWithDefaultError(w, http.StatusInternalServerError)

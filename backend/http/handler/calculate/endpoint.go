@@ -27,6 +27,17 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Получение пользователя
+	user, ok := r.Context().Value("user").(database.User)
+	if !ok {
+		logger.Error("failed to get user")
+		err := responses.RespondWithDefaultError(w, http.StatusInternalServerError)
+		if err != nil {
+			logger.Error("failed to send response", zap.String("error", err.Error()))
+		}
+		return
+	}
+
 	// Получение бд
 	db, ok := r.Context().Value("database").(*sql.DB)
 	if !ok {
@@ -92,7 +103,8 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Добавляем выражение в БД
-	id, err := database.InsertExpression(context.TODO(), db, &database.Expression{Status: "pending", Content: expression})
+	id, err := database.InsertExpression(context.TODO(), db,
+		&database.Expression{Status: "pending", Content: expression, UserId: user.Id})
 	if err != nil {
 		err := responses.RespondWithDefaultError(w, http.StatusInternalServerError)
 		if err != nil {

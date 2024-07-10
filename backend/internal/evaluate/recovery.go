@@ -11,7 +11,7 @@ import (
 // Recovery отправляет выражения в состоянии `pending` заново на обработку.
 func Recovery(db *sql.DB, manager *tasks.Manager) error {
 	// Берём все выражения из БД
-	rawExps, err := database.SelectExpressions(context.TODO(), db)
+	rawExps, err := database.SelectAllExpressions(context.TODO(), db)
 	if err != nil {
 		return err
 	}

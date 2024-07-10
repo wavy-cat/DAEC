@@ -5,6 +5,8 @@ import (
 	"strconv"
 )
 
+const JWTSecret = "lmao_lol" // Лучше замените это
+
 var HTTPAddress = ":80"   // Адрес HTTP сервера
 var GRPCAddress = ":5000" // Адрес gRPC сервера
 

@@ -5,14 +5,12 @@ import (
 	"database/sql"
 )
 
-type (
-	Expression struct {
-		Id      int64
-		Status  string
-		Result  float64
-		Content string
-	}
-)
+type Expression struct {
+	Id      int64
+	Status  string
+	Result  float64
+	Content string
+}
 
 func InsertExpression(ctx context.Context, db *sql.DB, expression *Expression) (int64, error) {
 	const q = `INSERT INTO expressions (status, result, content) values ($1, $2, $3)`
@@ -52,14 +50,14 @@ func SelectExpressions(ctx context.Context, db *sql.DB) ([]Expression, error) {
 }
 
 func SelectExpressionByID(ctx context.Context, db *sql.DB, id int64) (Expression, error) {
-	u := Expression{}
+	expression := Expression{}
 	const q = "SELECT id, status, result, content FROM expressions WHERE id = $1"
-	err := db.QueryRowContext(ctx, q, id).Scan(&u.Id, &u.Status, &u.Result, &u.Content)
+	err := db.QueryRowContext(ctx, q, id).Scan(&expression.Id, &expression.Status, &expression.Result, &expression.Content)
 	if err != nil {
-		return u, err
+		return expression, err
 	}
 
-	return u, nil
+	return expression, nil
 }
 
 func UpdateExpression(ctx context.Context, db *sql.DB, id int64, status string, result float64) error {

@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
+	"github.com/wavy-cat/DAEC/backend/http/handler/auth"
 	"github.com/wavy-cat/DAEC/backend/http/handler/calculate"
 	"github.com/wavy-cat/DAEC/backend/http/handler/expressions"
 	"github.com/wavy-cat/DAEC/backend/http/middleware"
@@ -36,28 +37,36 @@ func setupRouter(logger *zap.Logger, db *sql.DB, manager *tasks.Manager) http.Ha
 	// Здесь настраивается маршрутизация aka указание эндпойнтов сервера
 	routes := map[string]struct {
 		handler http.HandlerFunc
-		methods []string
+		method  string
 	}{
 		// Указываются тут, если что.
 		// Ключ — путь, значение — структура из объекта HandlerFunc и разрешённых методов.
 		"/api/v1/calculate": {
 			calculate.Handler,
-			[]string{"POST"},
+			"POST",
 		},
 		"/api/v1/expressions": {
 			expressions.Handler,
-			[]string{"GET"},
+			"GET",
 		},
 		"/api/v1/expressions/{id}": {
 			expressions.HandlerById,
-			[]string{"GET"},
+			"GET",
+		},
+		"/api/v1/register": {
+			auth.RegisterHandler,
+			"POST",
+		},
+		"/api/v1/login": {
+			auth.LoginHandler,
+			"POST",
 		},
 	}
 
 	for path, routeConfig := range routes {
 		// Чтобы не оборачивать функции в мидлвари вручную используется setupMiddlewares
 		handler := setupMiddlewares(routeConfig.handler, logger, db, manager)
-		router.Handle(path, handler).Methods(routeConfig.methods...)
+		router.Handle(path, handler).Methods(routeConfig.method)
 	}
 
 	return cors.Default().Handler(router)

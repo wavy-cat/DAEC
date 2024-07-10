@@ -7,6 +7,13 @@ import (
 
 func CreateTables(ctx context.Context, db *sql.DB) error {
 	const (
+		usersTable = `
+			CREATE TABLE IF NOT EXISTS users(
+			    id INTEGER PRIMARY KEY AUTOINCREMENT,
+			    login TEXT NOT NULL UNIQUE,
+			    password BLOB NOT NULL
+			);`
+
 		expressionsTable = `
 			CREATE TABLE IF NOT EXISTS expressions(
 				id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -17,6 +24,11 @@ func CreateTables(ctx context.Context, db *sql.DB) error {
 -- 				FOREIGN KEY (user_id)  REFERENCES expressions (id)
 			);`
 	)
+	// TODO: Реализовать привязку выражения к пользователю
+
+	if _, err := db.ExecContext(ctx, usersTable); err != nil {
+		return err
+	}
 
 	if _, err := db.ExecContext(ctx, expressionsTable); err != nil {
 		return err

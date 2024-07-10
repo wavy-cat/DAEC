@@ -4,9 +4,9 @@ import (
 	"database/sql"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
-	"github.com/wavy-cat/DAEC/backend/http/handler/auth"
 	"github.com/wavy-cat/DAEC/backend/http/handler/calculate"
 	"github.com/wavy-cat/DAEC/backend/http/handler/expressions"
+	"github.com/wavy-cat/DAEC/backend/http/handler/user"
 	"github.com/wavy-cat/DAEC/backend/http/middleware"
 	"github.com/wavy-cat/DAEC/backend/internal/config"
 	"github.com/wavy-cat/DAEC/backend/internal/tasks"
@@ -73,12 +73,12 @@ func setupRouter(logger *zap.Logger, db *sql.DB, manager *tasks.Manager) http.Ha
 			"full",
 		},
 		"/api/v1/register": {
-			auth.RegisterHandler,
+			user.RegisterHandler,
 			"POST",
 			"base",
 		},
 		"/api/v1/login": {
-			auth.LoginHandler,
+			user.LoginHandler,
 			"POST",
 			"base",
 		},

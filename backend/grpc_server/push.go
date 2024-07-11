@@ -10,13 +10,13 @@ import (
 func (s *Server) Push(_ context.Context, in *pb.PushTaskRequest) (*pb.Empty, error) {
 	id, err := uuid.Parse(in.Id)
 	if err != nil {
-		s.logger.Warn(err.Error())
+		s.logger.Warn("Failed to parse UUID", zap.String("error", err.Error()))
 		return nil, err
 	}
 
 	err = s.manager.AddResultToTask(id, in.Result, in.Successful)
 	if err != nil {
-		s.logger.Error(err.Error())
+		s.logger.Error("Failed to add result to task", zap.String("error", err.Error()))
 		return nil, err
 	}
 

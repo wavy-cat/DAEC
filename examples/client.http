@@ -1,0 +1,38 @@
+### Регистрирует нового пользователя
+POST http://localhost/api/v1/register
+Content-Type: application/json
+
+{
+  "login": "admin",
+  "password": "admin"
+}
+
+### Получает JWT-токен для авторизации
+POST http://localhost/api/v1/login
+Content-Type: application/json
+
+{
+  "login": "admin",
+  "password": "admin"
+}
+
+> {% client.global.set("auth_token", response.body.token); %}
+
+### Получение списка всех выражений
+GET http://localhost/api/v1/expressions
+Authorization: Bearer {{auth_token}}
+
+### Отправка выражения на обработку
+POST http://localhost/api/v1/calculate
+Authorization: Bearer {{auth_token}}
+Content-Type: application/json
+
+{
+  "expression": "2+2"
+}
+
+> {% client.global.set("id", response.body.id); %}
+
+### Получение выражения по его ID
+GET http://localhost/api/v1/expressions/{{id}}
+Authorization: Bearer {{auth_token}}

@@ -1,0 +1,36 @@
+### Получение задачи
+GRPC localhost:5000/tasks.TasksService/Pull
+
+{}
+
+> {%
+    client.global.set("task_id", response.body.id);
+
+    switch (response.body.operation) {
+        case "ADDITION":
+            client.global.set("result", response.body.arg1 + response.body.arg2);
+            break;
+        case "SUBTRACTION":
+            client.global.set("result", response.body.arg1 - response.body.arg2);
+            break;
+        case "MULTIPLICATION":
+            client.global.set("result", response.body.arg1 * response.body.arg2);
+            break;
+        case "DIVISION":
+            client.global.set("result", response.body.arg1 / response.body.arg2);
+            break;
+        case "EXPONENTIATION":
+            client.global.set("result", response.body.arg1 ** response.body.arg2);
+            break;
+    }
+%}
+
+
+### Отдача задачи
+GRPC localhost:5000/tasks.TasksService/Push
+
+{
+  "id": {{task_id}},
+  "result": {{result}},
+  "successful": true
+}

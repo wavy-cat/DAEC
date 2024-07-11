@@ -1,9 +1,0 @@
-### Получение результата конкретного выражения
-@id = 485a5d40-f9d5-4a07-875a-1efdf48804e5
-GET http://localhost/api/v1/expressions/{{ id }}
-Content-Type: application/json
-
-### Получение результата всех выражений
-GET http://localhost/api/v1/expressions
-Content-Type: application/json
-

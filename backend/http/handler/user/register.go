@@ -45,6 +45,15 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Проверяем что логин и пароль не пустые
+	if len(data.Login) == 0 || len(data.Password) == 0 {
+		response := "login or password field is empty"
+		if err := responses.RespondWithErrorMessage(w, http.StatusUnprocessableEntity, response); err != nil {
+			logger.Error("failed to send response", zap.String("error", err.Error()))
+		}
+		return
+	}
+
 	// Хэшируем пароль
 	hash, err := bcrypt.GenerateFromPassword([]byte(data.Password), bcrypt.DefaultCost)
 	if err != nil {

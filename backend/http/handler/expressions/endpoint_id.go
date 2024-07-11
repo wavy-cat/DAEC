@@ -60,7 +60,7 @@ func HandlerById(w http.ResponseWriter, r *http.Request) {
 
 	id, err := strconv.Atoi(rawId)
 	if err != nil {
-		err := responses.RespondWithErrorMessage(w, http.StatusInternalServerError, err.Error())
+		err := responses.RespondWithErrorMessage(w, http.StatusUnprocessableEntity, err.Error())
 		if err != nil {
 			logger.Error("failed to send response", zap.String("error", err.Error()))
 		}

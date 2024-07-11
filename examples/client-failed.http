@@ -1,0 +1,76 @@
+### Регистрируем пользователя
+POST http://localhost/api/v1/register
+Content-Type: application/json
+
+{
+  "login": "login",
+  "password": "password"
+}
+
+### Регистрируем того же пользователя (будет ошибка 409)
+POST http://localhost/api/v1/register
+Content-Type: application/json
+
+{
+  "login": "login",
+  "password": "password"
+}
+
+### Отправляем запрос с неправильной семантикой
+// Тут может быть любой эндпойнт с методом POST
+POST http://localhost/api/v1/register
+Content-Type: application/json
+
+{
+  "username": "login",
+  "passwd": "password"
+}
+
+### Получаем JWT-токен с неправильным логином
+POST http://localhost/api/v1/login
+Content-Type: application/json
+
+{
+  "login": "login-login",
+  "password": "password"
+}
+
+### Получаем JWT-токен с неправильным паролем
+POST http://localhost/api/v1/login
+Content-Type: application/json
+
+{
+  "login": "login",
+  "password": "passwd"
+}
+
+### Получаем выражения без авторизации
+GET http://localhost/api/v1/expressions
+
+### Авторизуемся (нам нужен токен)
+POST http://localhost/api/v1/login
+Content-Type: application/json
+
+{
+  "login": "login",
+  "password": "password"
+}
+
+> {% client.global.set("auth_token", response.body.token); %}
+
+### Отправляем неправильное выражение
+POST http://localhost/api/v1/calculate
+Authorization: Bearer {{auth_token}}
+Content-Type: application/json
+
+{
+  "expression": "2-"
+}
+
+### Получаем несуществующее выражение
+GET http://localhost/api/v1/expressions/100500
+Authorization: Bearer {{auth_token}}
+
+### Получаем несуществующее выражение, отдавая вместо числа ID строку
+GET http://localhost/api/v1/expressions/number
+Authorization: Bearer {{auth_token}}

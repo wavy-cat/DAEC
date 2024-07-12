@@ -106,6 +106,16 @@ docker compose down
 
 ## Остальная документация и примеры
 
-Примеры находятся в папке [examples](examples).
+Примеры (и по совместительству интеграционные тесты) находятся в папке [examples](examples).
+
+*Нет, я серьёзно, интеграционные тесты написаны в .http файлах.*
 
 Документация с API Reference и инструкциями по авторизации находятся в папке [docs](docs).
+
+## Модульные тесты
+
+Присутствуют в
+
+* [pkg/postfix](backend/pkg/postfix/postfix_test.go) (100% Coverage)
+* [pkg/queue](backend/pkg/queue/queue_test.go) (100% Coverage)
+* [pkg/stack](backend/pkg/stack/stack_test.go) (100% Coverage)

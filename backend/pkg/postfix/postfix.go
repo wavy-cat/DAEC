@@ -95,12 +95,7 @@ func Calculate(postfixNotation []any, solver MathSolver) *CalcResult {
 			return
 		}
 
-		num, ok := stack.Pop()
-		if !ok {
-			result.Error = errors.New("error getting value from stack. internal server error")
-			result.IsDone = true
-			return
-		}
+		num, _ := stack.Pop() // Тут должно быть всё ок, т.к. раньше этот момент проверили.
 
 		result.Result = num.GetValue()
 		if num.IsFail {

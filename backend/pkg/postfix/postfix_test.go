@@ -1,6 +1,8 @@
 package postfix
 
 import (
+	"fmt"
+	"math"
 	"reflect"
 	"testing"
 )
@@ -131,8 +133,188 @@ func TestConvertor(t *testing.T) {
 			t.Fatalf(`Convertor("( 20-18 ) + (") = nil, want error`)
 		}
 	})
+
+	t.Run("Operator at end", func(t *testing.T) {
+		t.Parallel()
+
+		_, err := Convertor("2 + 2 -")
+
+		if err == nil {
+			t.Fatalf(`Convertor("2 + 2 -") = nil, want error`)
+		}
+	})
 }
 
 func TestCalculate(t *testing.T) {
+	t.Run("Plan Success", func(t *testing.T) {
+		t.Parallel()
 
+		notation, _ := Convertor("2 + 2 * 2 / 2 ^ 2 - 2")
+		result := Calculate(notation, &solver{})
+		except := 1.0
+
+		for !result.IsDone {
+		}
+
+		if result.Error != nil {
+			t.Fatalf(`Calculate(notation, &solver{}) has error %s, want %f`, result.Error.Error(), except)
+		}
+
+		if result.Result != except {
+			t.Fatalf(`Calculate(notation, &solver{}) = %f, want %f`, result.Result, except)
+		}
+	})
+
+	t.Run("Error getting value from stack", func(t *testing.T) {
+		t.Parallel()
+
+		notation, _ := Convertor("2 + + 2")
+		result := Calculate(notation, &solver{})
+
+		for !result.IsDone {
+		}
+
+		if result.Error == nil {
+			t.Fatalf(`Calculate(notation, &solver{}).Error = nil, want error`)
+		}
+	})
+
+	t.Run("Incorrect parentheses", func(t *testing.T) {
+		t.Parallel()
+
+		notation, _ := Convertor("( 2 + 3")
+		result := Calculate(notation, &solver{})
+
+		for !result.IsDone {
+		}
+
+		if result.Error == nil {
+			t.Fatalf(`Calculate(notation, &solver{}).Error = nil, want error`)
+		}
+	})
+
+	t.Run("Set fail in solver", func(t *testing.T) {
+		t.Parallel()
+
+		notation, _ := Convertor("2 + 3")
+		result := Calculate(notation, &solver{NeedFailed: true})
+
+		for !result.IsDone {
+		}
+
+		if result.Error == nil {
+			t.Fatalf(`Calculate(notation, &solver{}).Error = nil, want error`)
+		}
+	})
+
+	t.Run("Problem from stack (line 100)", func(t *testing.T) {
+		t.Parallel()
+
+		notation, _ := Convertor("(+)")
+		result := Calculate(notation, &solver{})
+
+		for !result.IsDone {
+		}
+
+		fmt.Println(result.Error)
+
+		if result.Error == nil {
+			t.Fatalf(`Calculate(notation, &solver{}).Error = nil, want error`)
+		}
+	})
+}
+
+// Реализация интерфейса MathSolver
+type solver struct {
+	NeedFailed bool // Нужен ли Fail
+}
+
+func (s *solver) Addition(num1, num2 *LazyFloat) *LazyFloat {
+	var lf LazyFloat
+	go func() {
+		switch s.NeedFailed {
+		case false:
+			n1, n2 := num1.GetValue(), num2.GetValue()
+			if num1.IsFail || num2.IsFail {
+				lf.SetFail()
+				return
+			}
+			lf.SetValue(n1 + n2)
+		case true:
+			lf.SetFail()
+		}
+	}()
+	return &lf
+}
+
+func (s *solver) Subtraction(num1, num2 *LazyFloat) *LazyFloat {
+	var lf LazyFloat
+	go func() {
+		switch s.NeedFailed {
+		case false:
+			n1, n2 := num1.GetValue(), num2.GetValue()
+			if num1.IsFail || num2.IsFail {
+				lf.SetFail()
+				return
+			}
+			lf.SetValue(n1 - n2)
+		case true:
+			lf.SetFail()
+		}
+	}()
+	return &lf
+}
+
+func (s *solver) Division(num1, num2 *LazyFloat) *LazyFloat {
+	var lf LazyFloat
+	go func() {
+		switch s.NeedFailed {
+		case false:
+			n1, n2 := num1.GetValue(), num2.GetValue()
+			if num1.IsFail || num2.IsFail {
+				lf.SetFail()
+				return
+			}
+			lf.SetValue(n1 / n2)
+		case true:
+			lf.SetFail()
+		}
+	}()
+	return &lf
+}
+
+func (s *solver) Multiplication(num1, num2 *LazyFloat) *LazyFloat {
+	var lf LazyFloat
+	go func() {
+		switch s.NeedFailed {
+		case false:
+			n1, n2 := num1.GetValue(), num2.GetValue()
+			if num1.IsFail || num2.IsFail {
+				lf.SetFail()
+				return
+			}
+			lf.SetValue(n1 * n2)
+		case true:
+			lf.SetFail()
+		}
+	}()
+	return &lf
+}
+
+func (s *solver) Exponentiation(num1, num2 *LazyFloat) *LazyFloat {
+	var lf LazyFloat
+	go func() {
+		switch s.NeedFailed {
+		case false:
+			n1, n2 := num1.GetValue(), num2.GetValue()
+			if num1.IsFail || num2.IsFail {
+				lf.SetFail()
+				return
+			}
+			lf.SetValue(math.Pow(n1, n2))
+		case true:
+			lf.SetFail()
+		}
+	}()
+	return &lf
 }

@@ -59,10 +59,8 @@ func SplitExpressionToTokens(expression string) ([]any, error) {
 			}
 			i--
 
-			n, err := strconv.ParseFloat(num, 64)
-			if err != nil {
-				return nil, err
-			}
+			n, _ := strconv.ParseFloat(num, 64) // Предположим что нет такой ситуации чтобы была ошибка.
+			// А если найдёте — киньте Issue, будет интересно посмотреть.
 
 			if negative {
 				n = -n

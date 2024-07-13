@@ -121,6 +121,9 @@ docker compose down
 
 Присутствуют в
 
-* [pkg/postfix](backend/pkg/postfix/postfix_test.go) (100% Coverage)
-* [pkg/queue](backend/pkg/queue/queue_test.go) (100% Coverage)
-* [pkg/stack](backend/pkg/stack/stack_test.go) (100% Coverage)
+* [pkg](backend/pkg)
+* * [postfix](backend/pkg/postfix/postfix_test.go) (100% Coverage)
+* * [queue](backend/pkg/queue/queue_test.go) (100% Coverage)
+* * [stack](backend/pkg/stack/stack_test.go) (100% Coverage)
+* [Некоторых internal](backend/internal)
+* * [tasks](backend/internal/tasks/tasks_test.go) (100% Coverage)

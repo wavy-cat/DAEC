@@ -62,14 +62,32 @@ func (m *Manager) watchTasks() {
 }
 
 // RunWatcher Запускает watchTasks
-func (m *Manager) RunWatcher() {
-	m.watchStatus = make(chan interface{})
-	go m.watchTasks()
+func (m *Manager) RunWatcher() error {
+	select {
+	case _, ok := <-m.watchStatus:
+		if !ok {
+			m.watchStatus = make(chan interface{})
+			go m.watchTasks()
+		}
+	default:
+		return errors.New("watcher is already running")
+	}
+
+	return nil
 }
 
 // ShutdownWatcher Останавливает работу watchTasks
-func (m *Manager) ShutdownWatcher() {
-	close(m.watchStatus)
+func (m *Manager) ShutdownWatcher() error {
+	select {
+	case _, ok := <-m.watchStatus:
+		if !ok {
+			return errors.New("watcher no longer works")
+		}
+	default:
+		close(m.watchStatus)
+	}
+
+	return nil
 }
 
 // AddTask добавляет новую задачу

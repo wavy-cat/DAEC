@@ -2,7 +2,6 @@ package tasks
 
 import (
 	"github.com/google/uuid"
-	"strconv"
 	"time"
 )
 
@@ -21,30 +20,6 @@ type Task struct {
 	Successful     bool // Успешно ли выполнена задача
 	Timeout        time.Duration
 	CompleteBefore time.Time // Время, до которого задача должна быть решена
-}
-
-type ResultData struct {
-	Id     uuid.UUID       `json:"id"`     // Id выражения
-	Result NullableFloat64 `json:"result"` // Результат выражения
-}
-
-type NullableFloat64 struct {
-	Float float64
-	Valid bool
-}
-
-func (ns *NullableFloat64) UnmarshalJSON(data []byte) error {
-	if string(data) == "null" {
-		ns.Valid = false
-		return nil
-	}
-	float, err := strconv.ParseFloat(string(data), 64)
-	if err != nil {
-		return err
-	}
-	ns.Float = float
-	ns.Valid = true
-	return nil
 }
 
 type TaskResult struct {

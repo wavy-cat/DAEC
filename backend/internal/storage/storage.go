@@ -12,7 +12,6 @@ type Storage[T any] struct {
 func NewStorage[T any]() *Storage[T] {
 	return &Storage[T]{
 		database: make(map[any]T),
-		mutex:    sync.RWMutex{},
 	}
 }
 

@@ -113,7 +113,7 @@ docker compose down
 
 Примеры (и по совместительству интеграционные тесты) находятся в папке [examples](examples).
 
-*Нет, я серьёзно, интеграционные тесты написаны в .http файлах.*
+*Нет, я серьёзно, интеграционные тесты написаны в .http файлах. Даже с gRPC.*
 
 Документация с API Reference и инструкциями по авторизации находятся в папке [docs](docs).
 
@@ -121,9 +121,10 @@ docker compose down
 
 Присутствуют в
 
-* [pkg](backend/pkg)
+* [pkg пакетах](backend/pkg)
 * * [postfix](backend/pkg/postfix/postfix_test.go) (100% Coverage)
 * * [queue](backend/pkg/queue/queue_test.go) (100% Coverage)
 * * [stack](backend/pkg/stack/stack_test.go) (100% Coverage)
-* [Некоторых internal](backend/internal)
+* [Некоторых internal пакетах](backend/internal)
 * * [tasks](backend/internal/tasks/tasks_test.go) (100% Coverage)
+* * [storage](backend/internal/storage/storage_test.go) (100% Coverage)

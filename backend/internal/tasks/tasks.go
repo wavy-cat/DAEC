@@ -31,12 +31,10 @@ func NewManager() *Manager {
 // Если какая-то из них долго выполняется (выходит за таймаут),
 // то она будет заново добавлена в очередь.
 func (m *Manager) watchTasks() {
-	working := true
 	for {
 		select {
 		case <-m.watchStatus:
 			// Обработка завершения работы
-			working = false
 			break
 		default:
 			// Работаем
@@ -53,10 +51,6 @@ func (m *Manager) watchTasks() {
 			}
 		}
 
-		if !working {
-			break
-		}
-
 		time.Sleep(200 * time.Millisecond)
 	}
 }
@@ -64,11 +58,9 @@ func (m *Manager) watchTasks() {
 // RunWatcher Запускает watchTasks
 func (m *Manager) RunWatcher() error {
 	select {
-	case _, ok := <-m.watchStatus:
-		if !ok {
-			m.watchStatus = make(chan interface{})
-			go m.watchTasks()
-		}
+	case <-m.watchStatus:
+		m.watchStatus = make(chan interface{})
+		go m.watchTasks()
 	default:
 		return errors.New("watcher is already running")
 	}
@@ -79,10 +71,8 @@ func (m *Manager) RunWatcher() error {
 // ShutdownWatcher Останавливает работу watchTasks
 func (m *Manager) ShutdownWatcher() error {
 	select {
-	case _, ok := <-m.watchStatus:
-		if !ok {
-			return errors.New("watcher no longer works")
-		}
+	case <-m.watchStatus:
+		return errors.New("watcher no longer works")
 	default:
 		close(m.watchStatus)
 	}
@@ -107,10 +97,7 @@ func (m *Manager) GetTask() (TaskData, bool) {
 		return task, false
 	}
 
-	t, ok := m.database.Get(task.Id)
-	if !ok {
-		return task, false
-	}
+	t, _ := m.database.Get(task.Id) // По идее нет ситуации когда задачи в базе не окажется
 
 	t.Status = "processing"
 	t.CompleteBefore = time.Now().Add(t.Timeout)

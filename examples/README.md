@@ -4,8 +4,6 @@
 
 В этой папке есть 3 файла формата `.http` - для 2 клиента и 1 для агента.
 Используйте их в любой IDE от JetBrains (кроме бесплатных), например, GoLand (в ней и делалось).
-Или в VSCode с плагином [REST Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client).
-Или где-нибудь ещё.
 
 > [!WARNING]
 > Запускайте тесты полностью, а не по-отдельности.

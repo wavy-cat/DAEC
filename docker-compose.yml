@@ -18,8 +18,8 @@ services:
   caddy:
     image: caddy
     volumes:
-      - ./frontend:/var/www/frontend
-      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./frontend:/var/www/frontend:ro
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
     ports:
       - "80:80"
     depends_on:

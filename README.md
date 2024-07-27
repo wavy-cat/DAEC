@@ -81,6 +81,7 @@ Aka Распределенный вычислитель арифметическ
 ```bash
 git clone https://github.com/wavy-cat/DAEC.git
 cd DAEC
+touch database.db
 docker compose up -d
 ```
 
